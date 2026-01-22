@@ -1,0 +1,109 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - heading "라이브러리" [level=2] [ref=e8]
+        - button [ref=e9]:
+          - img [ref=e10]
+      - generic [ref=e11]:
+        - generic [ref=e12] [cursor=pointer]:
+          - img [ref=e13]
+          - generic [ref=e15]: 모든 논문
+          - generic [ref=e16]: "27"
+        - generic [ref=e19] [cursor=pointer]:
+          - button [ref=e20]:
+            - img [ref=e21]
+          - generic [ref=e24]: 머신러닝
+          - generic [ref=e25]: "15"
+        - generic [ref=e27] [cursor=pointer]:
+          - button [ref=e28]:
+            - img [ref=e29]
+          - generic [ref=e32]: 교육학
+          - generic [ref=e33]: "12"
+        - generic [ref=e35] [cursor=pointer]: 새 주제
+      - generic [ref=e36]:
+        - generic [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - generic [ref=e41]: PDF Upload
+        - generic [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: US
+          - generic:
+            - paragraph: User Name
+            - paragraph: user@example.com
+    - separator [ref=e46]
+    - generic [ref=e49]:
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - heading "논문 목록" [level=2] [ref=e52]
+          - generic [ref=e53]: "3"
+        - generic [ref=e54]:
+          - textbox "제목, 저자 검색..." [ref=e55]
+          - img [ref=e57]
+      - generic [ref=e60]:
+        - generic [ref=e61]: No.
+        - generic: Title
+        - generic [ref=e62]: Author
+        - generic [ref=e63]: Year
+        - generic [ref=e64]: Rate
+      - generic [ref=e65]:
+        - generic [ref=e66] [cursor=pointer]:
+          - generic [ref=e67]:
+            - img [ref=e70]
+            - img [ref=e74]
+          - generic [ref=e77]: "1"
+          - generic:
+            - generic: Deep Learning Approaches for Natural Language Processing
+            - generic: Nature AI
+          - generic [ref=e78]: Smith, J.
+          - generic [ref=e79]: "2024"
+          - generic [ref=e80]:
+            - img [ref=e81]
+            - img [ref=e83]
+            - img [ref=e85]
+            - img [ref=e87]
+            - img [ref=e89]
+        - generic [ref=e91] [cursor=pointer]:
+          - generic [ref=e92]: "2"
+          - generic:
+            - generic: A Survey of Machine Learning Techniques
+            - generic: IEEE Transactions
+          - generic [ref=e93]: Johnson, K.
+          - generic [ref=e94]: "2023"
+          - generic [ref=e95]:
+            - img [ref=e96]
+            - img [ref=e98]
+            - img [ref=e100]
+            - img [ref=e102]
+            - img [ref=e104]
+        - generic [ref=e106] [cursor=pointer]:
+          - generic [ref=e107]:
+            - img [ref=e110]
+            - img [ref=e114]
+          - generic [ref=e117]: "3"
+          - generic:
+            - generic: Recent Advances in Computer Vision
+            - generic: CVPR
+          - generic [ref=e118]: Lee, M.
+          - generic [ref=e119]: "2024"
+          - generic [ref=e120]:
+            - img [ref=e121]
+            - img [ref=e123]
+            - img [ref=e125]
+            - img [ref=e127]
+            - img [ref=e129]
+    - separator [ref=e131]
+    - generic [ref=e136]:
+      - img [ref=e137]
+      - paragraph [ref=e140]: 논문을 선택하세요
+      - paragraph [ref=e141]: PDF가 여기에 표시됩니다
+    - separator [ref=e142]
+    - generic [ref=e146]:
+      - img [ref=e148]
+      - paragraph [ref=e151]: 논문을 선택하여 상세 정보를 확인하세요
+  - button "Open Next.js Dev Tools" [ref=e157] [cursor=pointer]:
+    - img [ref=e158]
+  - alert [ref=e161]
+```

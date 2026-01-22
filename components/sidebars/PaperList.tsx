@@ -77,33 +77,30 @@ export function PaperList({ papers, selectedPaperId, onSelectPaper }: PaperListP
       )}
 
       {/* Search Header (Sticky) */}
-      <div className="p-3 border-b border-stone-200 bg-white sticky top-0 z-10 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-stone-800 font-sans tracking-tight">논문 목록</h2>
-            <span className="text-xs font-display text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">
-                {filteredPapers.length}
-            </span>
-        </div>
-        <div className="relative">
+      <div className="py-2 px-3 border-b border-stone-200 bg-white sticky top-0 z-10 min-h-[60px] flex items-center">
+        <div className="relative w-full">
              <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="제목, 저자 검색..."
-              className="w-full pl-9 pr-3 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d97757]/20 focus:border-[#d97757] transition-all font-sans placeholder-stone-400"
+              className="w-full pl-9 pr-12 py-2 text-sm bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d97757]/20 focus:border-[#d97757] transition-all font-sans placeholder-stone-400"
             />
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-display text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full">
+                {filteredPapers.length}
+            </span>
         </div>
       </div>
 
       {/* Table Header */}
-      <div className="bg-stone-50 border-b border-stone-200 px-4 py-2 text-xs font-semibold text-stone-500 flex items-center gap-3 font-sans uppercase tracking-wider sticky top-[85px] z-10">
+      <div className="bg-white border-b border-stone-200 px-4 py-2 text-xs font-semibold text-stone-500 flex items-center gap-3 font-sans uppercase tracking-wider sticky top-[61px] z-10 overflow-hidden">
         <div className="w-8 flex-shrink-0"></div>
         <div className="w-8 flex-shrink-0 text-center">No.</div>
-        <div className="flex-1 min-w-0">Title</div>
-        <div className="w-24 flex-shrink-0">Author</div>
+        <div className="flex-1 min-w-0 truncate">Title</div>
+        <div className="w-24 flex-shrink-0 truncate">Author</div>
         <div className="w-14 flex-shrink-0">Year</div>
         <div className="w-16 flex-shrink-0 text-center">Rate</div>
       </div>

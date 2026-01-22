@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronRight, ChevronDown, Folder, FolderPlus, BookOpen, Plus, Settings, Upload } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 interface TopicNode {
   id: string;
@@ -24,6 +24,21 @@ interface TopicsTreeProps {
 
 export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps) {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(['all']));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      console.log('Selected files:', Array.from(files).map(f => f.name));
+      // TODO: Implement actual file upload logic
+    }
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
 
   // Demo data
   const topics: TopicNode[] = [
@@ -72,7 +87,7 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="p-4 border-b border-stone-200 flex items-center justify-between">
+      <div className="py-2 px-3 border-b border-stone-200 flex items-center justify-between min-h-[60px]">
         <h2 className="text-sm font-bold text-stone-800 font-sans tracking-tight">라이브러리</h2>
         <button className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-600 hover:text-stone-900">
           <Plus className="w-4 h-4" />
@@ -155,7 +170,18 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
       {/* User Footer */}
       <div className="p-4 border-t border-stone-200 space-y-3">
         {/* Upload Area */}
-        <div className="border-2 border-dashed border-stone-200 rounded-lg p-3 hover:bg-stone-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 text-stone-400 hover:text-[#d97757] hover:border-[#d97757]/30 group">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          multiple
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <div
+          onClick={handleUploadClick}
+          className="border-2 border-dashed border-stone-200 rounded-lg p-3 hover:bg-stone-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 text-stone-400 hover:text-[#d97757] hover:border-[#d97757]/30 group"
+        >
             <Upload className="w-5 h-5" />
             <span className="text-xs font-medium">PDF Upload</span>
         </div>

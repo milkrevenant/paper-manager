@@ -77,17 +77,17 @@ export default function DashboardPage() {
     <div className="h-screen w-full bg-[#faf9f5] overflow-hidden">
         <ResizablePanelGroup orientation="horizontal">
             {/* Left Panel: Topics */}
-            <ResizablePanel defaultSize={18} minSize={10} className="bg-white border-r border-stone-200">
+            <ResizablePanel defaultSize={18} minSize={5} className="bg-white border-r border-stone-200">
                 <TopicsTree
                     onSelectFolder={handleSelectFolder}
                     selectedFolderId={selectedFolderId}
                 />
             </ResizablePanel>
-            
+
             <ResizableHandle />
 
             {/* Middle Panel: Paper List */}
-            <ResizablePanel defaultSize={22} minSize={15} className="bg-white border-r border-stone-200">
+            <ResizablePanel defaultSize={22} minSize={10} className="bg-white border-r border-stone-200">
                 <PaperList
                     papers={[]}
                     selectedPaperId={selectedPaperId}
@@ -97,9 +97,9 @@ export default function DashboardPage() {
 
             <ResizableHandle />
 
-            {/* Center Panel: PDF Viewer */}
-            <ResizablePanel defaultSize={35} minSize={5}>
-                 <div className="h-full flex flex-col bg-stone-100/50">
+            {/* Center Panel: PDF Viewer - collapsible with minSize=0 */}
+            <ResizablePanel defaultSize={35} minSize={0} collapsible={true}>
+                 <div className="h-full w-full flex flex-col bg-stone-100/50 min-w-0">
                     <PDFViewer />
                  </div>
             </ResizablePanel>
@@ -107,7 +107,7 @@ export default function DashboardPage() {
             <ResizableHandle />
 
             {/* Right Panel: Metadata */}
-            <ResizablePanel defaultSize={25} minSize={10} className="bg-white border-l border-stone-200">
+            <ResizablePanel defaultSize={25} minSize={5} className="bg-white border-l border-stone-200">
                 <MetadataPanel
                     key={selectedPaperId || 'empty'}
                     paper={selectedPaper}

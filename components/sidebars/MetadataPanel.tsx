@@ -109,12 +109,12 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
   return (
     <Card className="h-full flex flex-col border-none shadow-none bg-transparent">
       {/* Header / Actions */}
-      <div className="flex items-center justify-between px-1 pb-4 pt-2 shrink-0 border-b border-stone-100 mb-4">
+      <div className="flex items-center justify-between py-2 px-3 shrink-0 border-b border-stone-200 min-h-[60px] bg-white">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="font-display bg-white">
+          <Badge variant="outline" className="font-display bg-white py-0.5">
             #{paper.paperNumber}
           </Badge>
-          <Badge variant={formData.lastAnalyzedAt ? "secondary" : "outline"} className="gap-1">
+          <Badge variant={formData.lastAnalyzedAt ? "secondary" : "outline"} className="gap-1 py-0.5">
             {isDirty ? (
                <span className="text-stone-400">Saving...</span>
             ) : (
@@ -135,9 +135,9 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
             <Button 
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                size="sm" 
-                variant="outline" 
-                className="h-8 gap-2 border-[#d97757]/30 text-[#d97757] hover:bg-[#d97757]/5 hover:text-[#d97757]"
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1.5 text-xs border-[#d97757]/30 text-[#d97757] hover:bg-[#d97757]/5 hover:text-[#d97757]"
             >
                 <Sparkles className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
                 {isAnalyzing ? '분석 중...' : (formData.lastAnalyzedAt ? '재분석' : 'AI 분석')}
@@ -145,10 +145,10 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
         )}
       </div>
 
-      <ScrollArea className="flex-1 -mx-4 px-4">
-        <div className="space-y-8 pb-10">
+      <ScrollArea className="flex-1 px-3 pb-3 pt-2">
+        <div className="space-y-6 pb-10">
           {/* Basic Info Section */}
-          <section className="space-y-6">
+          <section className="space-y-4">
             <div className="space-y-2">
               <label className="text-xs font-bold text-stone-500 uppercase tracking-widest font-display">Title</label>
               <Textarea 

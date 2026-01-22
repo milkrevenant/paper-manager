@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAppStore } from '@/store/useAppStore';
+import { TopBar } from '@/components/layout/TopBar';
 import { TopicsTree } from '@/components/sidebars/TopicsTree';
 import { PaperList } from '@/components/sidebars/PaperList';
 import { PDFViewer } from '@/components/main/PDFViewer';
@@ -11,6 +12,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
+  type ImperativePanelHandle,
 } from "@/components/ui/resizable";
 
 export default function DashboardPage() {
@@ -18,6 +20,19 @@ export default function DashboardPage() {
 
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
+  const [panelVisibility, setPanelVisibility] = useState({
+    panel1: true,
+    panel2: true,
+    panel3: true,
+    panel4: true,
+  });
+  const [isResizing, setIsResizing] = useState(false);
+
+  // Panel refs for imperative control
+  const panel1Ref = useRef<ImperativePanelHandle>(null);
+  const panel2Ref = useRef<ImperativePanelHandle>(null);
+  const panel3Ref = useRef<ImperativePanelHandle>(null);
+  const panel4Ref = useRef<ImperativePanelHandle>(null);
 
   const handleSelectFolder = (_topicId: string, folderId: string | null) => {
     setSelectedFolderId(folderId);
@@ -31,7 +46,26 @@ export default function DashboardPage() {
   const handleUpdatePaper = async (data: Partial<Paper>) => {
     if (!selectedPaperId) return;
     console.log('Auto-saving paper:', selectedPaperId, data);
-    // In real app: await updatePaper('user-id', selectedPaperId, data);
+  };
+
+  const handleTogglePanel = (panel: 'panel1' | 'panel2' | 'panel3' | 'panel4') => {
+    const refs = {
+      panel1: panel1Ref,
+      panel2: panel2Ref,
+      panel3: panel3Ref,
+      panel4: panel4Ref,
+    };
+
+    const panelRef = refs[panel];
+    const isCurrentlyVisible = panelVisibility[panel];
+
+    if (isCurrentlyVisible) {
+      panelRef.current?.collapse();
+    } else {
+      panelRef.current?.expand();
+    }
+
+    setPanelVisibility(prev => ({ ...prev, [panel]: !prev[panel] }));
   };
 
   // Demo paper data for metadata panel
@@ -62,7 +96,7 @@ export default function DashboardPage() {
         futurePlans: [],
         googleDriveFileId: '',
         googleDriveFolderId: '',
-        pdfUrl: 'https://arxiv.org/pdf/1706.03762.pdf', // Added demo PDF URL
+        pdfUrl: 'https://arxiv.org/pdf/1706.03762.pdf',
         userNotes: '',
         tags: [],
         isRead: false,
@@ -74,48 +108,94 @@ export default function DashboardPage() {
     : null;
 
   return (
-    <div className="h-screen w-full bg-[#faf9f5] overflow-hidden">
-        <ResizablePanelGroup orientation="horizontal">
-            {/* Left Panel: Topics */}
-            <ResizablePanel defaultSize={18} minSize={5} className="bg-white border-r border-stone-200">
-                <TopicsTree
-                    onSelectFolder={handleSelectFolder}
-                    selectedFolderId={selectedFolderId}
-                />
-            </ResizablePanel>
+    <div className="h-screen w-full bg-[#faf9f5] overflow-hidden flex flex-col">
+      <TopBar panelVisibility={panelVisibility} onTogglePanel={handleTogglePanel} />
 
-            <ResizableHandle />
+      <div className="flex-1 overflow-hidden">
+        <ResizablePanelGroup orientation="horizontal" className={isResizing ? 'resizing' : ''}>
+          {/* Left Panel: Topics */}
+          <ResizablePanel
+            ref={panel1Ref}
+            defaultSize={18}
+            minSize={5}
+            collapsible
+            collapsedSize={0}
+            className="bg-white border-r border-stone-200"
+          >
+            <div className="h-full overflow-hidden">
+              <TopicsTree
+                onSelectFolder={handleSelectFolder}
+                selectedFolderId={selectedFolderId}
+              />
+            </div>
+          </ResizablePanel>
 
-            {/* Middle Panel: Paper List */}
-            <ResizablePanel defaultSize={22} minSize={10} className="bg-white border-r border-stone-200">
-                <PaperList
-                    papers={[]}
-                    selectedPaperId={selectedPaperId}
-                    onSelectPaper={handleSelectPaper}
-                />
-            </ResizablePanel>
+          <ResizableHandle
+            className="w-1 hover:bg-[#d97757]/50 transition-colors"
+            onDragging={setIsResizing}
+          />
 
-            <ResizableHandle />
+          {/* Middle Panel: Paper List */}
+          <ResizablePanel
+            ref={panel2Ref}
+            defaultSize={22}
+            minSize={10}
+            collapsible
+            collapsedSize={0}
+            className="bg-white border-r border-stone-200"
+          >
+            <div className="h-full overflow-hidden">
+              <PaperList
+                papers={[]}
+                selectedPaperId={selectedPaperId}
+                onSelectPaper={handleSelectPaper}
+              />
+            </div>
+          </ResizablePanel>
 
-            {/* Center Panel: PDF Viewer - collapsible with minSize=0 */}
-            <ResizablePanel defaultSize={35} minSize={0} collapsible={true}>
-                 <div className="h-full w-full flex flex-col bg-stone-100/50 min-w-0">
-                    <PDFViewer />
-                 </div>
-            </ResizablePanel>
+          <ResizableHandle
+            className="w-1 hover:bg-[#d97757]/50 transition-colors"
+            onDragging={setIsResizing}
+          />
 
-            <ResizableHandle />
+          {/* Center Panel: PDF Viewer */}
+          <ResizablePanel
+            ref={panel3Ref}
+            defaultSize={35}
+            minSize={10}
+            collapsible
+            collapsedSize={0}
+          >
+            <div className="h-full w-full flex flex-col bg-stone-100/50 min-w-0 overflow-hidden">
+              <PDFViewer />
+            </div>
+          </ResizablePanel>
 
-            {/* Right Panel: Metadata */}
-            <ResizablePanel defaultSize={25} minSize={5} className="bg-white border-l border-stone-200">
-                <MetadataPanel
-                    key={selectedPaperId || 'empty'}
-                    paper={selectedPaper}
-                    aiEnabled={aiEnabled}
-                    onUpdate={handleUpdatePaper}
-                />
-            </ResizablePanel>
+          <ResizableHandle
+            className="w-1 hover:bg-[#d97757]/50 transition-colors"
+            onDragging={setIsResizing}
+          />
+
+          {/* Right Panel: Metadata */}
+          <ResizablePanel
+            ref={panel4Ref}
+            defaultSize={25}
+            minSize={5}
+            collapsible
+            collapsedSize={0}
+            className="bg-white border-l border-stone-200"
+          >
+            <div className="h-full overflow-hidden">
+              <MetadataPanel
+                key={selectedPaperId || 'empty'}
+                paper={selectedPaper}
+                aiEnabled={aiEnabled}
+                onUpdate={handleUpdatePaper}
+              />
+            </div>
+          </ResizablePanel>
         </ResizablePanelGroup>
+      </div>
     </div>
   );
 }

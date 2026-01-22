@@ -11,13 +11,13 @@ test.describe('Paper Manager E2E', () => {
 
   test('should load dashboard with correct title', async ({ page }) => {
     await expect(page).toHaveTitle(/서지관리/);
-    // Header is removed, so we check for sidebars instead
-    await expect(page.getByText('라이브러리', { exact: true })).toBeVisible();
+    // Check for TopicsTree heading (not TopBar button)
+    await expect(page.getByRole('heading', { name: '라이브러리' })).toBeVisible();
   });
 
   test('should verify layout structure', async ({ page }) => {
     // Check for major sections in the new Resizable Panels
-    await expect(page.getByText('라이브러리', { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '라이브러리' })).toBeVisible();
     await expect(page.getByPlaceholder('제목, 저자 검색...')).toBeVisible();
 
     // Metadata panel empty state check

@@ -6,7 +6,6 @@ import { FileText, Sparkles, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -47,14 +46,14 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
 
   if (!paper) {
     return (
-      <Card className="h-full flex items-center justify-center bg-stone-50/50 border-none shadow-none">
+      <div className="h-full flex items-center justify-center bg-stone-50/50">
         <div className="text-center space-y-3">
           <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mx-auto">
             <FileText className="w-6 h-6 text-stone-400" />
           </div>
           <p className="text-stone-500 font-medium">논문을 선택하여 상세 정보를 확인하세요</p>
         </div>
-      </Card>
+      </div>
     );
   }
 
@@ -107,9 +106,9 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
   };
 
   return (
-    <Card className="h-full flex flex-col border-none shadow-none bg-transparent">
+    <div className="h-full flex flex-col bg-white">
       {/* Header / Actions */}
-      <div className="flex items-center justify-between py-2 px-3 shrink-0 border-b border-stone-200 min-h-[60px] bg-white">
+      <div className="flex items-start justify-between py-2 px-3 shrink-0 border-b border-stone-200 min-h-[60px]">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="font-display bg-white py-0.5">
             #{paper.paperNumber}
@@ -372,6 +371,6 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
           </section>
         </div>
       </ScrollArea>
-    </Card>
+    </div>
   );
 }

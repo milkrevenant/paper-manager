@@ -72,9 +72,13 @@ export async function checkDuplicate(
   userId: string,
   title: string
 ): Promise<boolean> {
+  if (!db) {
+    console.warn('Firestore is not initialized.');
+    return false;
+  }
   const papersRef = collection(db, 'users', userId, 'papers');
   const q = query(papersRef, where('title', '==', title), limit(1));
-  
+
   const snapshot = await getDocs(q);
   return !snapshot.empty;
 }
@@ -83,14 +87,17 @@ export async function checkDuplicate(
  * Get next paper number
  */
 async function getNextPaperNumber(userId: string): Promise<number> {
+  if (!db) {
+    return 1;
+  }
   const papersRef = collection(db, 'users', userId, 'papers');
   const q = query(papersRef, orderBy('paperNumber', 'desc'), limit(1));
-  
+
   const snapshot = await getDocs(q);
   if (snapshot.empty) {
     return 1;
   }
-  
+
   const lastPaper = snapshot.docs[0].data();
   return (lastPaper.paperNumber || 0) + 1;
 }
@@ -102,10 +109,13 @@ export async function createPaper(
   userId: string,
   data: Omit<Paper, 'id' | 'paperNumber' | 'createdAt' | 'updatedAt'>
 ): Promise<string> {
+  if (!db) {
+    throw new Error('Firestore is not initialized.');
+  }
   const papersRef = collection(db, 'users', userId, 'papers');
-  
+
   const paperNumber = await getNextPaperNumber(userId);
-  
+
   const docRef = await addDoc(papersRef, {
     ...data,
     paperNumber,
@@ -125,8 +135,11 @@ export async function updatePaper(
   paperId: string,
   data: Partial<Omit<Paper, 'id' | 'createdAt' | 'paperNumber'>>
 ): Promise<void> {
+  if (!db) {
+    throw new Error('Firestore is not initialized.');
+  }
   const paperRef = doc(db, 'users', userId, 'papers', paperId);
-  
+
   await updateDoc(paperRef, {
     ...data,
     updatedAt: Timestamp.now(),
@@ -140,6 +153,9 @@ export async function deletePaper(
   userId: string,
   paperId: string
 ): Promise<void> {
+  if (!db) {
+    throw new Error('Firestore is not initialized.');
+  }
   const paperRef = doc(db, 'users', userId, 'papers', paperId);
   await deleteDoc(paperRef);
 }
@@ -151,6 +167,9 @@ export async function getPaper(
   userId: string,
   paperId: string
 ): Promise<Paper | null> {
+  if (!db) {
+    return null;
+  }
   const paperRef = doc(db, 'users', userId, 'papers', paperId);
   const docSnap = await getDoc(paperRef);
 
@@ -176,6 +195,13 @@ export function subscribeToPapers(
   sortBy: 'date' | 'name' = 'date',
   callback: (papers: Paper[]) => void
 ): () => void {
+  // Return no-op if db is not initialized (SSR or no Firebase config)
+  if (!db) {
+    console.warn('Firestore is not initialized. Using empty data.');
+    callback([]);
+    return () => {};
+  }
+
   const papersRef = collection(db, 'users', userId, 'papers');
   
   let q;
@@ -192,15 +218,23 @@ export function subscribeToPapers(
     );
   }
 
-  return onSnapshot(q, (snapshot) => {
-    const papers = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate(),
-      updatedAt: doc.data().updatedAt?.toDate(),
-      lastAnalyzedAt: doc.data().lastAnalyzedAt?.toDate(),
-    })) as Paper[];
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const papers = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate(),
+        updatedAt: doc.data().updatedAt?.toDate(),
+        lastAnalyzedAt: doc.data().lastAnalyzedAt?.toDate(),
+      })) as Paper[];
 
-    callback(papers);
-  });
+      callback(papers);
+    },
+    (error) => {
+      console.warn('Firestore subscription error:', error.message);
+      // On error, return empty array to allow app to continue with demo data
+      callback([]);
+    }
+  );
 }

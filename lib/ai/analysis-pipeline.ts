@@ -87,7 +87,7 @@ export class AnalysisPipeline {
       // Step 5: Save to Firestore
       onProgress?.('데이터 저장 중...');
       const paperId = await createPaper(userId, {
-        topicId,
+        folderId: topicId,
         keywords: finalResult.keywords,
         author: finalResult.author,
         year: parseInt(finalResult.year) || new Date().getFullYear(),

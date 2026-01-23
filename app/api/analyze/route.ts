@@ -59,10 +59,31 @@ export async function POST(req: NextRequest) {
 
     // 5. Update Database
     console.log('Updating database...');
-    await updatePaper(userId, paperId, {
-      ...finalResult,
+    // Convert AnalysisResult to Paper-compatible format
+    const paperUpdate = {
+      keywords: finalResult.keywords,
+      author: finalResult.author,
+      year: parseInt(finalResult.year) || 0,
+      title: finalResult.title,
+      publisher: finalResult.publisher,
+      subject: finalResult.subject,
+      purposes: finalResult.purposes,
+      isQualitative: finalResult.isQualitative,
+      isQuantitative: finalResult.isQuantitative,
+      qualTools: finalResult.qualTools,
+      varsIndependent: finalResult.vars_independent,
+      varsDependent: finalResult.vars_dependent,
+      varsModerator: finalResult.vars_moderator,
+      varsMediator: finalResult.vars_mediator,
+      varsOthers: finalResult.vars_others,
+      quantTechniques: finalResult.quantTechniques,
+      results: finalResult.results,
+      limitations: finalResult.limitations,
+      implications: finalResult.implications,
+      futurePlans: finalResult.futurePlans,
       lastAnalyzedAt: new Date(),
-    });
+    };
+    await updatePaper(userId, paperId, paperUpdate);
 
     return NextResponse.json({ success: true, result: finalResult });
 

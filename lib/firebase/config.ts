@@ -10,14 +10,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'placeholder',
 };
 
+// Check if Firebase is properly configured (not using placeholder values)
+export const isFirebaseConfigured = firebaseConfig.projectId !== 'placeholder' &&
+  firebaseConfig.apiKey !== 'placeholder';
+
 // Initialize Firebase (singleton pattern)
-// Only initialize on client side
+// Only initialize on client side and if properly configured
 let app: FirebaseApp | undefined;
 let db: Firestore | undefined;
 
-if (typeof window !== 'undefined') {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-  db = getFirestore(app);
+if (typeof window !== 'undefined' && isFirebaseConfigured) {
+  try {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
+  } catch (error) {
+    console.warn('Firebase initialization failed:', error);
+  }
 }
 
 // Mock user ID for development without authentication

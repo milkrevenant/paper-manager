@@ -127,16 +127,12 @@
   @apply hover:bg-stone-100/50 transition-colors duration-200;
 }
 
-/* Panel slide animation */
+/* Panel transitions: instant by default (for drag resize) */
 [data-panel] {
-  transition: flex-basis 300ms ease-in-out, flex-grow 300ms ease-in-out;
+  transition: none;
 }
 
-[data-panel][data-panel-collapsible="true"] {
-  transition: flex-basis 300ms ease-in-out, flex-grow 300ms ease-in-out;
-}
-
-/* Disable transition during manual resize */
-.resizing [data-panel] {
-  transition: none !important;
+/* Smooth transition only when toggling via button */
+.animating [data-panel] {
+  transition: flex-basis 200ms ease-out, flex-grow 200ms ease-out;
 }

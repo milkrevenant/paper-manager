@@ -6,7 +6,7 @@ import {
   Panel,
   Group as PanelGroup,
   Separator as PanelResizeHandle,
-  type ImperativePanelHandle,
+  type PanelImperativeHandle,
 } from "react-resizable-panels"
 
 import { cn } from "@/lib/utils"
@@ -28,7 +28,7 @@ function ResizablePanelGroup({
 }
 
 const ResizablePanel = React.forwardRef<
-  ImperativePanelHandle,
+  PanelImperativeHandle,
   React.ComponentProps<typeof Panel>
 >((props, ref) => {
   return <Panel panelRef={ref} data-slot="resizable-panel" {...props} />
@@ -38,29 +38,31 @@ ResizablePanel.displayName = "ResizablePanel"
 function ResizableHandle({
   withHandle,
   className,
-  onDragging,
   ...props
 }: React.ComponentProps<typeof PanelResizeHandle> & {
   withHandle?: boolean
-  onDragging?: (isDragging: boolean) => void
 }) {
   return (
     <PanelResizeHandle
       data-slot="resizable-handle"
-      onDragging={onDragging}
       className={cn(
-        "bg-border focus-visible:ring-ring relative flex w-px items-center justify-center after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:ring-1 focus-visible:ring-offset-1 focus-visible:outline-hidden data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:translate-x-0 data-[panel-group-direction=vertical]:after:-translate-y-1/2 [&[data-panel-group-direction=vertical]>div]:rotate-90",
+        "relative flex w-[2px] items-center justify-center bg-transparent hover:bg-[#d97757]/30 active:bg-[#d97757]/50 transition-colors duration-100 cursor-col-resize",
+        "after:absolute after:inset-y-0 after:left-1/2 after:w-3 after:-translate-x-1/2",
+        "data-[panel-group-direction=vertical]:h-[2px] data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:cursor-row-resize",
+        "data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-3 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:translate-x-0 data-[panel-group-direction=vertical]:after:-translate-y-1/2",
+        "[&[data-panel-group-direction=vertical]>div]:rotate-90",
+        "focus-visible:outline-hidden",
         className
       )}
       {...props}
     >
       {withHandle && (
-        <div className="bg-border z-10 flex h-4 w-3 items-center justify-center rounded-xs border">
-          <GripVerticalIcon className="size-2.5" />
+        <div className="bg-stone-100 z-10 flex h-4 w-3 items-center justify-center rounded-xs border border-stone-200">
+          <GripVerticalIcon className="size-2.5 text-stone-400" />
         </div>
       )}
     </PanelResizeHandle>
   )
 }
 
-export { ResizablePanelGroup, ResizablePanel, ResizableHandle, type ImperativePanelHandle }
+export { ResizablePanelGroup, ResizablePanel, ResizableHandle, type PanelImperativeHandle }

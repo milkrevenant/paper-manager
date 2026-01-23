@@ -1,7 +1,26 @@
 'use client';
 
-import { ChevronRight, ChevronDown, Folder, FolderPlus, BookOpen, Plus, Settings, Upload } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { ChevronRight, Folder, FolderPlus, BookOpen, Plus, Settings, Upload, Loader2 } from 'lucide-react';
+import { useState, ReactNode } from 'react';
+import { cn } from '@/lib/utils';
+import { SettingsDialog } from '@/components/settings/SettingsDialog';
+import { isTauri, openPdfDialog } from '@/lib/tauri/commands';
+
+// Animated collapsible component using CSS grid trick for smooth height animation
+function Collapsible({ isOpen, children }: { isOpen: boolean; children: ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "grid transition-[grid-template-rows] duration-200 ease-out",
+        isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+      )}
+    >
+      <div className="overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 interface TopicNode {
   id: string;
@@ -20,24 +39,26 @@ interface FolderNode {
 interface TopicsTreeProps {
   onSelectFolder: (topicId: string, folderId: string | null) => void;
   selectedFolderId: string | null;
+  onImportPdfs?: (filePaths: string[]) => Promise<void>;
+  isImporting?: boolean;
 }
 
-export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps) {
+export function TopicsTree({
+  onSelectFolder,
+  selectedFolderId,
+  onImportPdfs,
+  isImporting = false,
+}: TopicsTreeProps) {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(['all']));
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
+  const handleUploadClick = async () => {
+    if (!isTauri() || !onImportPdfs) return;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      console.log('Selected files:', Array.from(files).map(f => f.name));
-      // TODO: Implement actual file upload logic
+    const paths = await openPdfDialog();
+    if (paths && paths.length > 0) {
+      await onImportPdfs(paths);
     }
-    // Reset input so same file can be selected again
-    e.target.value = '';
   };
 
   // Demo data
@@ -121,19 +142,20 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
                 onClick={() => toggleTopic(topic.id)}
                 className="p-0.5 hover:bg-stone-200 rounded transition-colors"
               >
-                {expandedTopics.has(topic.id) ? (
-                  <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-600" />
-                ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-600" />
-                )}
+                <ChevronRight
+                  className={cn(
+                    "w-3.5 h-3.5 text-stone-400 group-hover:text-stone-600 transition-transform duration-200",
+                    expandedTopics.has(topic.id) && "rotate-90"
+                  )}
+                />
               </button>
               <BookOpen className={`w-4 h-4 ${colorClasses[topic.color]}`} />
               <span className="text-sm font-medium text-stone-700 font-sans">{topic.name}</span>
               <span className="ml-auto text-xs font-display text-stone-400">{topic.paperCount}</span>
             </div>
 
-            {/* Folders */}
-            {expandedTopics.has(topic.id) && (
+            {/* Folders with animation */}
+            <Collapsible isOpen={expandedTopics.has(topic.id)}>
               <div className="ml-6 mt-1 space-y-0.5">
                 {topic.folders.map((folder) => (
                   <div
@@ -157,7 +179,7 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
                   <span className="text-sm font-sans">새 폴더</span>
                 </div>
               </div>
-            )}
+            </Collapsible>
           </div>
         ))}
 
@@ -170,20 +192,26 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
       {/* User Footer */}
       <div className="p-4 border-t border-stone-200 space-y-3">
         {/* Upload Area */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf"
-          multiple
-          onChange={handleFileChange}
-          className="hidden"
-        />
         <div
           onClick={handleUploadClick}
-          className="border-2 border-dashed border-stone-200 rounded-lg p-3 hover:bg-stone-50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5 text-stone-400 hover:text-[#d97757] hover:border-[#d97757]/30 group"
+          className={cn(
+            "border-2 border-dashed border-stone-200 rounded-lg p-3 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1.5",
+            isImporting
+              ? "bg-stone-50 text-stone-400 cursor-wait"
+              : "hover:bg-stone-50 text-stone-400 hover:text-[#d97757] hover:border-[#d97757]/30"
+          )}
         >
-            <Upload className="w-5 h-5" />
-            <span className="text-xs font-medium">PDF Upload</span>
+          {isImporting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="text-xs font-medium">가져오는 중...</span>
+            </>
+          ) : (
+            <>
+              <Upload className="w-5 h-5" />
+              <span className="text-xs font-medium">PDF Upload</span>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-stone-50 cursor-pointer transition-colors">
@@ -194,9 +222,19 @@ export function TopicsTree({ onSelectFolder, selectedFolderId }: TopicsTreeProps
             <p className="text-sm font-medium text-stone-900 truncate">User Name</p>
             <p className="text-xs text-stone-500 truncate">user@example.com</p>
           </div>
-          <Settings className="w-4 h-4 text-stone-400" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSettingsOpen(true);
+            }}
+            className="p-1.5 hover:bg-stone-200 rounded-lg transition-colors"
+          >
+            <Settings className="w-4 h-4 text-stone-400" />
+          </button>
         </div>
       </div>
+
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }

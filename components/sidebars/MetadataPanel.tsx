@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Paper } from '@/lib/db/papers';
+import type { Paper } from '@/lib/tauri/types';
 import { FileText, Sparkles, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,8 +63,8 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
   };
 
   const handleAnalyze = async () => {
-    if (!paper?.pdfUrl) {
-      alert('분석할 PDF URL이 없습니다.');
+    if (!paper?.pdfPath) {
+      alert('분석할 PDF 파일이 없습니다.');
       return;
     }
 
@@ -72,13 +72,13 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
     try {
       // Mock user ID for now as we don't have auth context yet
       const userId = 'demo-user';
-      
+
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paperId: paper.id,
-          pdfUrl: paper.pdfUrl,
+          pdfPath: paper.pdfPath,
           userId,
         }),
       });
@@ -106,9 +106,9 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-white min-h-0">
       {/* Header / Actions */}
-      <div className="flex items-start justify-between py-2 px-3 shrink-0 border-b border-stone-200 min-h-[60px]">
+      <div className="flex items-center justify-between py-2 px-3 shrink-0 border-b border-stone-200 min-h-[60px]">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="font-display bg-white py-0.5">
             #{paper.paperNumber}
@@ -144,8 +144,8 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
         )}
       </div>
 
-      <ScrollArea className="flex-1 px-3 pb-3 pt-2">
-        <div className="space-y-6 pb-10">
+      <ScrollArea className="flex-1 min-h-0 overflow-hidden">
+        <div className="px-3 pb-3 pt-2 space-y-6">
           {/* Basic Info Section */}
           <section className="space-y-4">
             <div className="space-y-2">

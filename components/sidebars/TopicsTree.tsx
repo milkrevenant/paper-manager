@@ -53,11 +53,21 @@ export function TopicsTree({
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleUploadClick = async () => {
-    if (!isTauri() || !onImportPdfs) return;
+    console.log('[TopicsTree] Upload clicked, isTauri:', isTauri(), 'onImportPdfs:', !!onImportPdfs);
+    if (!isTauri() || !onImportPdfs) {
+      console.log('[TopicsTree] Early return - Tauri:', isTauri(), 'onImportPdfs:', !!onImportPdfs);
+      return;
+    }
 
-    const paths = await openPdfDialog();
-    if (paths && paths.length > 0) {
-      await onImportPdfs(paths);
+    try {
+      console.log('[TopicsTree] Opening PDF dialog...');
+      const paths = await openPdfDialog();
+      console.log('[TopicsTree] Dialog result:', paths);
+      if (paths && paths.length > 0) {
+        await onImportPdfs(paths);
+      }
+    } catch (error) {
+      console.error('[TopicsTree] Dialog error:', error);
     }
   };
 
@@ -105,11 +115,22 @@ export function TopicsTree({
     red: 'text-red-600',
   };
 
+  // Check Tauri status for debugging
+  const tauriStatus = isTauri();
+
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Header */}
       <div className="py-2 px-3 border-b border-stone-200 flex items-center justify-between min-h-[60px]">
-        <h2 className="text-sm font-bold text-stone-800 font-sans tracking-tight">라이브러리</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold text-stone-800 font-sans tracking-tight">라이브러리</h2>
+          <span className={cn(
+            "text-[10px] px-1.5 py-0.5 rounded font-medium",
+            tauriStatus ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+          )}>
+            {tauriStatus ? 'Tauri' : 'Web'}
+          </span>
+        </div>
         <button className="p-1.5 hover:bg-stone-100 rounded-lg transition-colors text-stone-600 hover:text-stone-900">
           <Plus className="w-4 h-4" />
         </button>

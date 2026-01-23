@@ -109,36 +109,26 @@ export function usePapers(options: UsePapersOptions = {}): UsePapersReturn {
   const [error, setError] = useState<Error | null>(null);
 
   const loadPapers = useCallback(async () => {
+    console.log('[usePapers] loadPapers called, isTauri:', isTauri(), 'folderId:', folderId);
+
     if (!isTauri()) {
-      const filtered = folderId
-        ? DEMO_PAPERS.filter((p) => p.folderId === folderId)
-        : DEMO_PAPERS;
-
-      const sorted = [...filtered].sort((a, b) => {
-        if (sortBy === 'name') {
-          return a.title.localeCompare(b.title);
-        }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-
-      setPapers(sorted);
+      console.log('[usePapers] Not in Tauri environment, showing empty list');
+      setPapers([]);
       setLoading(false);
       return;
     }
 
     try {
       setLoading(true);
+      console.log('[usePapers] Fetching papers from Tauri backend...');
       const data = await fetchPapers(folderId, sortBy);
+      console.log('[usePapers] Fetched papers:', data.length, data);
       setPapers(data);
       setError(null);
     } catch (err) {
-      console.error('Failed to load papers:', err);
+      console.error('[usePapers] Failed to load papers:', err);
       setError(err as Error);
-      // Fallback to demo data on error
-      const filtered = folderId
-        ? DEMO_PAPERS.filter((p) => p.folderId === folderId)
-        : DEMO_PAPERS;
-      setPapers(filtered);
+      setPapers([]);
     } finally {
       setLoading(false);
     }
@@ -164,68 +154,48 @@ export function usePapers(options: UsePapersOptions = {}): UsePapersReturn {
   }, [folderId, loadPapers]);
 
   const addPaper = useCallback(async (input: CreatePaperInput) => {
+    console.log('[usePapers] addPaper called, isTauri:', isTauri(), 'input:', input);
+
     if (!isTauri()) {
-      const newPaper: Paper = {
-        id: `paper-${Date.now()}`,
-        folderId: input.folderId,
-        paperNumber: papers.length + 1,
-        keywords: '',
-        author: input.author || '',
-        year: input.year || 0,
-        title: input.title,
-        publisher: '',
-        subject: '',
-        purposes: [],
-        isQualitative: false,
-        isQuantitative: false,
-        qualTools: [],
-        varsIndependent: [],
-        varsDependent: [],
-        varsModerator: [],
-        varsMediator: [],
-        varsOthers: [],
-        quantTechniques: [],
-        results: [],
-        limitations: [],
-        implications: [],
-        futurePlans: [],
-        pdfPath: input.pdfPath || '',
-        pdfFilename: input.pdfFilename || '',
-        userNotes: '',
-        tags: [],
-        isRead: false,
-        importance: 3,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastAnalyzedAt: null,
-      };
-      setPapers((prev) => [newPaper, ...prev]);
-      return newPaper.id;
+      console.log('[usePapers] Not in Tauri, cannot add paper');
+      throw new Error('Not running in Tauri environment');
     }
+
     const paper = await createPaperCmd(input);
+    console.log('[usePapers] Paper created:', paper);
+    // Refresh papers list after adding
+    loadPapers();
     return paper.id;
-  }, [papers.length]);
+  }, [loadPapers]);
 
   const editPaper = useCallback(async (paperId: string, input: UpdatePaperInput) => {
+    console.log('[usePapers] editPaper called, paperId:', paperId, 'input:', input);
+
     if (!isTauri()) {
-      setPapers((prev) =>
-        prev.map((p) =>
-          p.id === paperId
-            ? { ...p, ...input, updatedAt: new Date().toISOString() }
-            : p
-        )
-      );
-      return;
+      throw new Error('Not running in Tauri environment');
     }
+
     await updatePaperCmd(paperId, input);
+    // Update local state optimistically
+    setPapers((prev) =>
+      prev.map((p) =>
+        p.id === paperId
+          ? { ...p, ...input, updatedAt: new Date().toISOString() }
+          : p
+      )
+    );
   }, []);
 
   const removePaper = useCallback(async (paperId: string) => {
+    console.log('[usePapers] removePaper called, paperId:', paperId);
+
     if (!isTauri()) {
-      setPapers((prev) => prev.filter((p) => p.id !== paperId));
-      return;
+      throw new Error('Not running in Tauri environment');
     }
+
     await deletePaperCmd(paperId);
+    // Update local state
+    setPapers((prev) => prev.filter((p) => p.id !== paperId));
   }, []);
 
   return {

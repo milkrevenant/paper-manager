@@ -14,8 +14,10 @@ import type {
 } from './types';
 
 // Check if running in Tauri environment
+// Tauri v2 with withGlobalTauri: true sets window.__TAURI_INTERNALS__
 export const isTauri = (): boolean => {
-  return typeof window !== 'undefined' && '__TAURI__' in window;
+  if (typeof window === 'undefined') return false;
+  return '__TAURI_INTERNALS__' in window;
 };
 
 // Topics

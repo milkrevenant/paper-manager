@@ -93,16 +93,22 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   };
 
   const handleSelectStoragePath = async () => {
-    if (!isTauri()) return;
+    console.log('[SettingsDialog] handleSelectStoragePath called, isTauri:', isTauri());
+    if (!isTauri()) {
+      console.log('[SettingsDialog] Not in Tauri, returning');
+      return;
+    }
 
     try {
+      console.log('[SettingsDialog] Opening directory dialog...');
       const selected = await openDirectoryDialog('Select Storage Directory');
+      console.log('[SettingsDialog] Selected path:', selected);
 
       if (selected) {
         await handleSaveSetting('storagePath', selected);
       }
     } catch (error) {
-      console.error('Failed to select directory:', error);
+      console.error('[SettingsDialog] Failed to select directory:', error);
     }
   };
 

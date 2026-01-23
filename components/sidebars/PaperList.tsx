@@ -90,42 +90,7 @@ export function PaperList({
     // Web file drop is not supported for now (need File API handling)
   };
 
-  // Demo papers
-  const demoPapers: Partial<Paper>[] = [
-    {
-      id: '1',
-      paperNumber: 1,
-      title: 'Deep Learning Approaches for Natural Language Processing',
-      author: 'Smith, J.',
-      year: 2024,
-      publisher: 'Nature AI',
-      importance: 5,
-      lastAnalyzedAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      paperNumber: 2,
-      title: 'A Survey of Machine Learning Techniques',
-      author: 'Johnson, K.',
-      year: 2023,
-      publisher: 'IEEE Transactions',
-      importance: 4,
-    },
-    {
-      id: '3',
-      paperNumber: 3,
-      title: 'Recent Advances in Computer Vision',
-      author: 'Lee, M.',
-      year: 2024,
-      publisher: 'CVPR',
-      importance: 3,
-      lastAnalyzedAt: new Date().toISOString(),
-    },
-  ];
-
-  const allPapers = papers.length > 0 ? papers : demoPapers;
-  
-  const filteredPapers = allPapers.filter(paper => 
+  const filteredPapers = papers.filter(paper => 
     paper.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
     paper.author?.toLowerCase().includes(searchQuery.toLowerCase())
   );

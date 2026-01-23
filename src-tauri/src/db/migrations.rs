@@ -2,6 +2,7 @@ use rusqlite::Connection;
 use crate::error::AppError;
 
 pub fn run(conn: &Connection) -> Result<(), AppError> {
+    // Main schema
     conn.execute_batch(
         r#"
         -- Topics table
@@ -87,6 +88,13 @@ pub fn run(conn: &Connection) -> Result<(), AppError> {
             next_number INTEGER NOT NULL DEFAULT 1
         );
         INSERT OR IGNORE INTO paper_sequence (id, next_number) VALUES (1, 1);
+
+        -- Create default topic and folder
+        INSERT OR IGNORE INTO topics (id, name, color, icon, sort_order)
+        VALUES ('default', 'General', 'gray', 'BookOpen', 0);
+
+        INSERT OR IGNORE INTO folders (id, topic_id, name, sort_order)
+        VALUES ('default', 'default', 'Unsorted', 0);
 
         -- Settings table for app configuration
         CREATE TABLE IF NOT EXISTS settings (

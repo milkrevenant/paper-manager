@@ -17,12 +17,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Eye, EyeOff, FolderOpen, Check, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, FolderOpen, Check, Loader2, ExternalLink } from 'lucide-react';
 import {
   getSettings,
   setSetting,
   isTauri,
   openDirectoryDialog,
+  startGoogleOAuth,
+  startOAuthServer,
+  revokeGoogleTokens,
 } from '@/lib/tauri/commands';
 import type { AppSettings } from '@/lib/tauri/types';
 
@@ -88,6 +91,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
+  const [connectingGoogle, setConnectingGoogle] = useState(false);
 
   useEffect(() => {
     if (open && isTauri()) {
@@ -154,6 +158,49 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     if (!key) return '';
     if (key.length <= 8) return '*'.repeat(key.length);
     return key.slice(0, 4) + '*'.repeat(key.length - 8) + key.slice(-4);
+  };
+
+  const handleConnectGoogle = async () => {
+    if (!isTauri()) return;
+
+    setConnectingGoogle(true);
+    try {
+      // Start the OAuth callback server
+      await startOAuthServer();
+
+      // Get the authorization URL and open in browser
+      const authUrl = await startGoogleOAuth();
+
+      // Open the auth URL in the default browser
+      const { open } = await import('@tauri-apps/plugin-shell');
+      await open(authUrl);
+
+      // Note: The actual token exchange happens in the callback server
+      // For now, we'll just show a message. In a full implementation,
+      // we'd listen for the callback and update the UI accordingly.
+      console.log('OAuth flow started - please complete authentication in browser');
+
+      // After 30 seconds, refresh settings to check if auth completed
+      setTimeout(async () => {
+        await loadSettings();
+        setConnectingGoogle(false);
+      }, 30000);
+
+    } catch (error) {
+      console.error('Failed to start Google OAuth:', error);
+      setConnectingGoogle(false);
+    }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    if (!isTauri()) return;
+
+    try {
+      await revokeGoogleTokens();
+      setSettings(prev => ({ ...prev, googleAccountEmail: null }));
+    } catch (error) {
+      console.error('Failed to disconnect Google account:', error);
+    }
   };
 
   return (
@@ -338,49 +385,59 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <p className="text-sm font-medium text-stone-700">
                           {settings.googleAccountEmail}
                         </p>
-                        <p className="text-xs text-stone-400">Google Account</p>
+                        <p className="text-xs text-stone-400">Google Account (Drive sync enabled)</p>
                       </div>
                     </div>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleSaveSetting('googleAccountEmail', '')}
+                      onClick={handleDisconnectGoogle}
                       className="text-red-500 hover:text-red-600 hover:bg-red-50"
                     >
                       Disconnect
                     </Button>
                   </div>
+                ) : connectingGoogle ? (
+                  <div className="flex items-center justify-center p-4 bg-stone-50 rounded-lg">
+                    <Loader2 className="w-5 h-5 animate-spin text-stone-400 mr-2" />
+                    <span className="text-sm text-stone-600">
+                      Complete authentication in your browser...
+                    </span>
+                  </div>
                 ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => {
-                      // TODO: Implement Google OAuth
-                      console.log('Connect Google Account');
-                    }}
-                  >
-                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    Connect Google Account
-                  </Button>
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleConnectGoogle}
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+                        <path
+                          fill="currentColor"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        />
+                        <path
+                          fill="currentColor"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        />
+                      </svg>
+                      Connect Google Account
+                      <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
+                    </Button>
+                    <p className="text-xs text-stone-400 text-center">
+                      Enables Google Drive backup and multi-device sync
+                    </p>
+                  </div>
                 )}
               </div>
             </section>

@@ -146,3 +146,55 @@ export interface AppSettings {
   storagePath: string | null;
   googleAccountEmail: string | null;
 }
+
+// Google OAuth Types
+export interface GoogleTokens {
+  accessToken: string;
+  refreshToken: string | null;
+  expiresAt: number;
+  email: string | null;
+}
+
+// Paper Search Types
+export interface SearchAuthor {
+  authorId: string | null;
+  name: string;
+}
+
+export interface OpenAccessPdf {
+  url: string | null;
+  status: string | null;
+}
+
+export interface ExternalIds {
+  doi: string | null;
+  arxivId: string | null;
+  pubmed: string | null;
+  pubmedCentral: string | null;
+}
+
+export interface SearchResult {
+  paperId: string;
+  title: string;
+  authors: SearchAuthor[];
+  year: number | null;
+  abstractText: string | null;
+  venue: string | null;
+  citationCount: number | null;
+  url: string | null;
+  openAccessPdf: OpenAccessPdf | null;
+  externalIds: ExternalIds | null;
+}
+
+export interface SearchQuery {
+  query: string;
+  limit?: number;
+  offset?: number;
+  year?: string;
+  fieldsOfStudy?: string[];
+}
+
+export interface SearchResponse {
+  total: number;
+  results: SearchResult[];
+}

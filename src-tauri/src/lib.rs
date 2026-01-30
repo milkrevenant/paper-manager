@@ -69,6 +69,19 @@ pub fn run() {
             commands::settings::set_setting,
             commands::settings::update_settings,
             commands::settings::delete_setting,
+            // Google OAuth
+            commands::google_auth::start_google_oauth,
+            commands::google_auth::handle_google_oauth_callback,
+            commands::google_auth::get_google_tokens,
+            commands::google_auth::refresh_google_token,
+            commands::google_auth::revoke_google_tokens,
+            commands::google_auth::start_oauth_server,
+            // Paper Search
+            commands::paper_search::search_papers,
+            commands::paper_search::get_paper_details,
+            commands::paper_search::search_by_doi,
+            commands::paper_search::search_by_arxiv,
+            commands::paper_search::get_paper_recommendations,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

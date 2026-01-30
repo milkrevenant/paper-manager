@@ -11,6 +11,10 @@ import type {
   CreatePaperInput,
   UpdatePaperInput,
   AppSettings,
+  GoogleTokens,
+  SearchQuery,
+  SearchResponse,
+  SearchResult,
 } from './types';
 
 // Check if running in Tauri environment
@@ -129,3 +133,44 @@ export const openDirectoryDialog = async (title?: string): Promise<string | null
   // Tauri v2 returns string for single selection
   return typeof result === 'string' ? result : result[0] || null;
 };
+
+// Google OAuth
+export const startGoogleOAuth = (): Promise<string> =>
+  invoke('start_google_oauth');
+
+export const handleGoogleOAuthCallback = (
+  code: string,
+  state: string
+): Promise<GoogleTokens> =>
+  invoke('handle_google_oauth_callback', { code, state });
+
+export const getGoogleTokens = (): Promise<GoogleTokens | null> =>
+  invoke('get_google_tokens');
+
+export const refreshGoogleToken = (): Promise<GoogleTokens> =>
+  invoke('refresh_google_token');
+
+export const revokeGoogleTokens = (): Promise<void> =>
+  invoke('revoke_google_tokens');
+
+export const startOAuthServer = (): Promise<void> =>
+  invoke('start_oauth_server');
+
+// Paper Search (Semantic Scholar)
+export const searchPapers = (query: SearchQuery): Promise<SearchResponse> =>
+  invoke('search_papers', { query });
+
+export const getPaperDetails = (paperId: string): Promise<SearchResult> =>
+  invoke('get_paper_details', { paperId });
+
+export const searchByDoi = (doi: string): Promise<SearchResult> =>
+  invoke('search_by_doi', { doi });
+
+export const searchByArxiv = (arxivId: string): Promise<SearchResult> =>
+  invoke('search_by_arxiv', { arxivId });
+
+export const getPaperRecommendations = (
+  paperId: string,
+  limit?: number
+): Promise<SearchResult[]> =>
+  invoke('get_paper_recommendations', { paperId, limit });

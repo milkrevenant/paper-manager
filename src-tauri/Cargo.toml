@@ -30,3 +30,12 @@ chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1"
 log = "0.4"
 base64 = "0.22"
+
+# OAuth & HTTP
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json"] }
+tiny_http = "0.12"
+url = "2"
+rand = "0.8"
+urlencoding = "2"
+sha2 = "0.10"

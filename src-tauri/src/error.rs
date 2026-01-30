@@ -14,6 +14,15 @@ pub enum AppError {
 
     #[error("Validation error: {0}")]
     Validation(String),
+
+    #[error("Authentication error: {0}")]
+    Auth(String),
+
+    #[error("Network error: {0}")]
+    Network(String),
+
+    #[error("Parse error: {0}")]
+    Parse(String),
 }
 
 impl Serialize for AppError {

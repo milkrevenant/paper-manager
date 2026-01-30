@@ -8,9 +8,10 @@ import {
   Strikethrough,
   Underline,
   ChevronDown,
-  PanelLeft,
-  PanelRight,
-  Columns3,
+  FolderTree,
+  List,
+  FileText,
+  ClipboardList,
   Type,
   Palette,
   Highlighter,
@@ -237,7 +238,7 @@ export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
             onClick={() => onTogglePanel('panel1')}
             className={`h-7 px-2 gap-1.5 text-xs ${panelVisibility.panel1 ? 'text-stone-700' : 'text-stone-400'}`}
           >
-            <PanelLeft className="w-4 h-4" />
+            <FolderTree className="w-4 h-4" />
             <span className="hidden sm:inline">라이브러리</span>
           </Button>
           <Button
@@ -246,7 +247,7 @@ export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
             onClick={() => onTogglePanel('panel2')}
             className={`h-7 px-2 gap-1.5 text-xs ${panelVisibility.panel2 ? 'text-stone-700' : 'text-stone-400'}`}
           >
-            <Columns3 className="w-4 h-4" />
+            <List className="w-4 h-4" />
             <span className="hidden sm:inline">논문목록</span>
           </Button>
           <Button
@@ -255,7 +256,7 @@ export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
             onClick={() => onTogglePanel('panel3')}
             className={`h-7 px-2 gap-1.5 text-xs ${panelVisibility.panel3 ? 'text-stone-700' : 'text-stone-400'}`}
           >
-            <Columns3 className="w-4 h-4" />
+            <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">PDF</span>
           </Button>
           <Button
@@ -264,7 +265,7 @@ export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
             onClick={() => onTogglePanel('panel4')}
             className={`h-7 px-2 gap-1.5 text-xs ${panelVisibility.panel4 ? 'text-stone-700' : 'text-stone-400'}`}
           >
-            <PanelRight className="w-4 h-4" />
+            <ClipboardList className="w-4 h-4" />
             <span className="hidden sm:inline">메타데이터</span>
           </Button>
         </div>

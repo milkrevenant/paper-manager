@@ -7,7 +7,7 @@ import { TopicsTree } from '@/components/sidebars/TopicsTree';
 import { PaperList } from '@/components/sidebars/PaperList';
 import { PDFViewer } from '@/components/main/PDFViewer';
 import { MetadataPanel } from '@/components/sidebars/MetadataPanel';
-import { usePapers, type Paper } from '@/hooks/usePapers';
+import { usePapers, useAllPapers, type Paper } from '@/hooks/usePapers';
 import { importPdf, isTauri } from '@/lib/tauri/commands';
 import {
   ResizableHandle,
@@ -31,6 +31,7 @@ export default function DashboardPage() {
 
   // Use papers hook
   const { papers, addPaper, editPaper } = usePapers({ folderId: selectedFolderId });
+  const { papers: allPapers } = useAllPapers();
 
   // Handle PDF import
   const handleImportPdfs = useCallback(async (filePaths: string[]) => {
@@ -147,6 +148,7 @@ export default function DashboardPage() {
                 selectedFolderId={selectedFolderId}
                 onImportPdfs={handleImportPdfs}
                 isImporting={isImporting}
+                totalPaperCount={allPapers.length}
               />
             </div>
           </ResizablePanel>

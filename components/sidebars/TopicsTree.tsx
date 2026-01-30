@@ -41,6 +41,7 @@ interface TopicsTreeProps {
   selectedFolderId: string | null;
   onImportPdfs?: (filePaths: string[]) => Promise<void>;
   isImporting?: boolean;
+  totalPaperCount?: number;
 }
 
 export function TopicsTree({
@@ -48,6 +49,7 @@ export function TopicsTree({
   selectedFolderId,
   onImportPdfs,
   isImporting = false,
+  totalPaperCount = 0,
 }: TopicsTreeProps) {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(['all']));
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -149,7 +151,7 @@ export function TopicsTree({
         >
           <BookOpen className="w-4 h-4 flex-shrink-0" />
           <span className="text-sm font-sans">모든 논문</span>
-          <span className="ml-auto text-xs font-display text-stone-500 font-medium">27</span>
+          <span className="ml-auto text-xs font-display text-stone-500 font-medium">{totalPaperCount}</span>
         </div>
 
         <div className="h-px bg-stone-100 my-2 mx-2" />

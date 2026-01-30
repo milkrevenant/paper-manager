@@ -25,27 +25,7 @@ export function TabPDFViewer({ selectedPaper }: TabPDFViewerProps) {
   const [displayUrls, setDisplayUrls] = useState<Record<string, string>>({});
   const [loadingTabs, setLoadingTabs] = useState<Set<string>>(new Set());
 
-  // Open or focus a paper when selected
-  useEffect(() => {
-    if (!selectedPaper?.pdfPath) return;
-
-    const existingTab = tabs.find(t => t.id === selectedPaper.id);
-    if (existingTab) {
-      // Tab already exists, just focus it
-      setActiveTabId(existingTab.id);
-    } else {
-      // Add new tab
-      const newTab: PDFTab = {
-        id: selectedPaper.id,
-        title: selectedPaper.title,
-        pdfPath: selectedPaper.pdfPath,
-      };
-      setTabs(prev => [...prev, newTab]);
-      setActiveTabId(newTab.id);
-      loadPdfUrl(newTab.id, selectedPaper.pdfPath);
-    }
-  }, [selectedPaper?.id, selectedPaper?.pdfPath, selectedPaper?.title]);
-
+  // Load PDF URL helper - defined first to avoid hoisting issues
   const loadPdfUrl = useCallback(async (tabId: string, pdfPath: string) => {
     if (!isTauri()) return;
 
@@ -65,6 +45,30 @@ export function TabPDFViewer({ selectedPaper }: TabPDFViewerProps) {
       });
     }
   }, []);
+
+  // Open or focus a paper when selected
+  useEffect(() => {
+    if (!selectedPaper?.pdfPath) return;
+
+    setTabs(prevTabs => {
+      const existingTab = prevTabs.find(t => t.id === selectedPaper.id);
+      if (existingTab) {
+        // Tab already exists, just focus it
+        setActiveTabId(existingTab.id);
+        return prevTabs;
+      } else {
+        // Add new tab
+        const newTab: PDFTab = {
+          id: selectedPaper.id,
+          title: selectedPaper.title,
+          pdfPath: selectedPaper.pdfPath,
+        };
+        setActiveTabId(newTab.id);
+        loadPdfUrl(newTab.id, selectedPaper.pdfPath);
+        return [...prevTabs, newTab];
+      }
+    });
+  }, [selectedPaper?.id, selectedPaper?.pdfPath, selectedPaper?.title, loadPdfUrl]);
 
   const closeTab = useCallback((tabId: string, e: React.MouseEvent) => {
     e.stopPropagation();

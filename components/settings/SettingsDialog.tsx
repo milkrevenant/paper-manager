@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Eye, EyeOff, FolderOpen, Check, Loader2, ExternalLink } from 'lucide-react';
+import { Eye, EyeOff, FolderOpen, Check, Loader2, ExternalLink, CloudUpload, CloudDownload, RefreshCw } from 'lucide-react';
 import {
   getSettings,
   setSetting,
@@ -26,8 +26,12 @@ import {
   startGoogleOAuth,
   startOAuthServer,
   revokeGoogleTokens,
+  backupToDrive,
+  restoreFromDrive,
+  getSyncStatus,
+  handleGoogleOAuthCallback,
 } from '@/lib/tauri/commands';
-import type { AppSettings } from '@/lib/tauri/types';
+import type { AppSettings, SyncStatus } from '@/lib/tauri/types';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -92,10 +96,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
   const [saving, setSaving] = useState<string | null>(null);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [syncing, setSyncing] = useState<'backup' | 'restore' | null>(null);
 
   useEffect(() => {
     if (open && isTauri()) {
       loadSettings();
+      loadSyncStatus();
     }
   }, [open]);
 
@@ -108,6 +115,46 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       console.error('Failed to load settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSyncStatus = async () => {
+    try {
+      const status = await getSyncStatus();
+      setSyncStatus(status);
+    } catch (error) {
+      console.error('Failed to load sync status:', error);
+    }
+  };
+
+  const handleBackup = async () => {
+    if (!isTauri()) return;
+    setSyncing('backup');
+    try {
+      await backupToDrive();
+      await loadSyncStatus();
+    } catch (error) {
+      console.error('Backup failed:', error);
+    } finally {
+      setSyncing(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!isTauri()) return;
+    if (!confirm('This will replace your local data with the backup from Google Drive. Continue?')) {
+      return;
+    }
+    setSyncing('restore');
+    try {
+      await restoreFromDrive();
+      // Reload settings after restore
+      await loadSettings();
+      await loadSyncStatus();
+    } catch (error) {
+      console.error('Restore failed:', error);
+    } finally {
+      setSyncing(null);
     }
   };
 
@@ -165,8 +212,32 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
     setConnectingGoogle(true);
     try {
+      // Import listen function for events
+      const { listen } = await import('@tauri-apps/api/event');
+
       // Start the OAuth callback server
       await startOAuthServer();
+
+      // Listen for OAuth callback event
+      const unlisten = await listen<{ code: string; state: string }>('oauth-callback', async (event) => {
+        try {
+          const { code, state } = event.payload;
+          console.log('Received OAuth callback');
+
+          // Exchange code for tokens
+          const tokens = await handleGoogleOAuthCallback(code, state);
+          console.log('OAuth successful:', tokens.email);
+
+          // Reload settings to get the new email
+          await loadSettings();
+          await loadSyncStatus();
+        } catch (error) {
+          console.error('Failed to complete OAuth:', error);
+        } finally {
+          setConnectingGoogle(false);
+          unlisten();
+        }
+      });
 
       // Get the authorization URL and open in browser
       const authUrl = await startGoogleOAuth();
@@ -175,16 +246,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       const { open } = await import('@tauri-apps/plugin-shell');
       await open(authUrl);
 
-      // Note: The actual token exchange happens in the callback server
-      // For now, we'll just show a message. In a full implementation,
-      // we'd listen for the callback and update the UI accordingly.
-      console.log('OAuth flow started - please complete authentication in browser');
-
-      // After 30 seconds, refresh settings to check if auth completed
-      setTimeout(async () => {
-        await loadSettings();
+      // Timeout after 5 minutes
+      setTimeout(() => {
+        unlisten();
         setConnectingGoogle(false);
-      }, 30000);
+      }, 300000);
 
     } catch (error) {
       console.error('Failed to start Google OAuth:', error);
@@ -374,30 +440,73 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
               <h3 className="text-sm font-semibold text-stone-700 mb-3">Connected Account</h3>
               <div className="space-y-3">
                 {settings.googleAccountEmail ? (
-                  <div className="flex items-center justify-between p-3 bg-stone-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-sm font-medium text-blue-600">
-                          {settings.googleAccountEmail[0].toUpperCase()}
-                        </span>
+                  <>
+                    <div className="flex items-center justify-between p-3 bg-stone-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                          <span className="text-sm font-medium text-blue-600">
+                            {settings.googleAccountEmail[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-stone-700">
+                            {settings.googleAccountEmail}
+                          </p>
+                          <p className="text-xs text-stone-400">Google Account (Drive sync enabled)</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-stone-700">
-                          {settings.googleAccountEmail}
-                        </p>
-                        <p className="text-xs text-stone-400">Google Account (Drive sync enabled)</p>
-                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleDisconnectGoogle}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                      >
+                        Disconnect
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleDisconnectGoogle}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                    >
-                      Disconnect
-                    </Button>
-                  </div>
+
+                    {/* Sync Controls */}
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={handleBackup}
+                          disabled={syncing !== null}
+                        >
+                          {syncing === 'backup' ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <CloudUpload className="w-4 h-4 mr-1" />
+                          )}
+                          Backup to Drive
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={handleRestore}
+                          disabled={syncing !== null}
+                        >
+                          {syncing === 'restore' ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                          ) : (
+                            <CloudDownload className="w-4 h-4 mr-1" />
+                          )}
+                          Restore from Drive
+                        </Button>
+                      </div>
+                      {syncStatus?.lastSync && (
+                        <p className="text-xs text-stone-400 text-center">
+                          Last synced: {new Date(syncStatus.lastSync).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  </>
                 ) : connectingGoogle ? (
                   <div className="flex items-center justify-center p-4 bg-stone-50 rounded-lg">
                     <Loader2 className="w-5 h-5 animate-spin text-stone-400 mr-2" />

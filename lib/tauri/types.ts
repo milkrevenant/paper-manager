@@ -198,3 +198,19 @@ export interface SearchResponse {
   total: number;
   results: SearchResult[];
 }
+
+// Google Drive Types
+export interface DriveFile {
+  id: string;
+  name: string;
+  mimeType: string | null;
+  modifiedTime: string | null;
+  size: string | null;
+}
+
+export interface SyncStatus {
+  lastSync: string | null;
+  dbSynced: boolean;
+  pdfsSynced: number;
+  totalPdfs: number;
+}

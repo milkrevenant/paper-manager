@@ -19,6 +19,7 @@ import {
   Pin,
   PinOff,
   Table2,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -42,6 +43,7 @@ interface TopBarProps {
     panel4: boolean;
   };
   onTogglePanel: (panel: 'panel1' | 'panel2' | 'panel3' | 'panel4') => void;
+  onSearchClick?: () => void;
 }
 
 const fontSizes = ['10', '11', '12', '14', '16', '18', '20', '24', '28', '32', '36', '48'];
@@ -58,7 +60,7 @@ const colors = [
   '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
 ];
 
-export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
+export function TopBar({ panelVisibility, onTogglePanel, onSearchClick }: TopBarProps) {
   const [fontSize, setFontSize] = useState('12');
   const [fontFamily, setFontFamily] = useState('sans-serif');
   const [fontColor, setFontColor] = useState('#000000');
@@ -269,6 +271,21 @@ export function TopBar({ panelVisibility, onTogglePanel }: TopBarProps) {
             <span className="hidden sm:inline">메타데이터</span>
           </Button>
         </div>
+
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
+        {/* Search Button */}
+        {onSearchClick && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onSearchClick}
+            className="h-7 px-2 gap-1.5 text-xs text-[#d97757] hover:text-[#c46647] hover:bg-[#d97757]/10"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">논문 검색</span>
+          </Button>
+        )}
 
         <Separator orientation="vertical" className="h-5 mx-1" />
 

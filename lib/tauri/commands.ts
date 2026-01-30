@@ -15,6 +15,8 @@ import type {
   SearchQuery,
   SearchResponse,
   SearchResult,
+  DriveFile,
+  SyncStatus,
 } from './types';
 
 // Check if running in Tauri environment
@@ -174,3 +176,16 @@ export const getPaperRecommendations = (
   limit?: number
 ): Promise<SearchResult[]> =>
   invoke('get_paper_recommendations', { paperId, limit });
+
+// Google Drive
+export const backupToDrive = (): Promise<string> =>
+  invoke('backup_to_drive');
+
+export const restoreFromDrive = (): Promise<void> =>
+  invoke('restore_from_drive');
+
+export const getSyncStatus = (): Promise<SyncStatus> =>
+  invoke('get_sync_status');
+
+export const listDriveFiles = (): Promise<DriveFile[]> =>
+  invoke('list_drive_files');

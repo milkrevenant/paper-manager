@@ -7,8 +7,10 @@ import { TopicsTree } from '@/components/sidebars/TopicsTree';
 import { PaperList } from '@/components/sidebars/PaperList';
 import { TabPDFViewer } from '@/components/main/TabPDFViewer';
 import { MetadataPanel } from '@/components/sidebars/MetadataPanel';
+import { PaperSearchDialog } from '@/components/search/PaperSearchDialog';
 import { usePapers, useAllPapers, type Paper } from '@/hooks/usePapers';
 import { importPdf, isTauri } from '@/lib/tauri/commands';
+import type { SearchResult } from '@/lib/tauri/types';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -22,6 +24,7 @@ export default function DashboardPage() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   const [selectedPaperId, setSelectedPaperId] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const [panelVisibility, setPanelVisibility] = useState({
     panel1: true,
     panel2: true,
@@ -122,6 +125,26 @@ export default function DashboardPage() {
     }, 200);
   };
 
+  // Handle adding paper from search results
+  const handleAddFromSearch = useCallback(async (searchResult: SearchResult) => {
+    if (!isTauri()) return;
+
+    try {
+      // Create paper with metadata from search
+      const paperId = await addPaper({
+        folderId: selectedFolderId || 'default',
+        title: searchResult.title,
+        author: searchResult.authors.map(a => a.name).join(', '),
+        year: searchResult.year || undefined,
+      });
+
+      // Select the new paper
+      setSelectedPaperId(paperId);
+    } catch (error) {
+      console.error('Failed to add paper from search:', error);
+    }
+  }, [selectedFolderId, addPaper]);
+
   // Find selected paper from papers array
   const selectedPaper = selectedPaperId
     ? papers.find((p) => p.id === selectedPaperId) || null
@@ -129,7 +152,17 @@ export default function DashboardPage() {
 
   return (
     <div className="h-screen w-full bg-[#faf9f5] overflow-hidden flex flex-col">
-      <TopBar panelVisibility={panelVisibility} onTogglePanel={handleTogglePanel} />
+      <TopBar
+        panelVisibility={panelVisibility}
+        onTogglePanel={handleTogglePanel}
+        onSearchClick={() => setSearchDialogOpen(true)}
+      />
+
+      <PaperSearchDialog
+        open={searchDialogOpen}
+        onOpenChange={setSearchDialogOpen}
+        onAddPaper={handleAddFromSearch}
+      />
 
       <div ref={panelGroupRef} className="flex-1 overflow-hidden">
         <ResizablePanelGroup orientation="horizontal">

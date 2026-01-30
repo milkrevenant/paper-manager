@@ -82,6 +82,11 @@ pub fn run() {
             commands::paper_search::search_by_doi,
             commands::paper_search::search_by_arxiv,
             commands::paper_search::get_paper_recommendations,
+            // Google Drive
+            commands::google_drive::backup_to_drive,
+            commands::google_drive::restore_from_drive,
+            commands::google_drive::get_sync_status,
+            commands::google_drive::list_drive_files,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

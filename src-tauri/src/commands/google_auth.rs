@@ -4,7 +4,7 @@ use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
-use tauri::State;
+use tauri::{Emitter, State};
 
 // Google OAuth configuration
 // NOTE: These should be replaced with your actual Google Cloud Console credentials
@@ -277,13 +277,29 @@ pub async fn revoke_google_tokens(db: State<'_, DbConnection>) -> Result<(), App
     Ok(())
 }
 
-/// Start local OAuth callback server
+/// OAuth callback data
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OAuthCallback {
+    pub code: String,
+    pub state: String,
+}
+
+/// Start local OAuth callback server and wait for callback
 #[tauri::command]
-pub async fn start_oauth_server() -> Result<(), AppError> {
+pub async fn start_oauth_server(app: tauri::AppHandle) -> Result<(), AppError> {
     use std::thread;
 
-    thread::spawn(|| {
-        let server = tiny_http::Server::http("127.0.0.1:8847").unwrap();
+    let app_clone = app.clone();
+
+    thread::spawn(move || {
+        let server = match tiny_http::Server::http("127.0.0.1:8847") {
+            Ok(s) => s,
+            Err(e) => {
+                log::error!("Failed to start OAuth server: {}", e);
+                return;
+            }
+        };
 
         // Wait for a single request (the OAuth callback)
         if let Ok(request) = server.recv() {
@@ -291,22 +307,64 @@ pub async fn start_oauth_server() -> Result<(), AppError> {
 
             // Parse callback parameters
             if url.starts_with("/oauth/callback") {
-                // Send success response to browser
-                let response = tiny_http::Response::from_string(
-                    r#"<!DOCTYPE html>
+                // Parse query parameters
+                let query_start = url.find('?').unwrap_or(url.len());
+                let query_string = &url[query_start..];
+
+                let mut code = None;
+                let mut state = None;
+
+                for pair in query_string.trim_start_matches('?').split('&') {
+                    let mut parts = pair.splitn(2, '=');
+                    if let (Some(key), Some(value)) = (parts.next(), parts.next()) {
+                        match key {
+                            "code" => code = Some(urlencoding::decode(value).unwrap_or_default().to_string()),
+                            "state" => state = Some(urlencoding::decode(value).unwrap_or_default().to_string()),
+                            _ => {}
+                        }
+                    }
+                }
+
+                if let (Some(code), Some(state)) = (code, state) {
+                    // Emit event to frontend
+                    let _ = app_clone.emit("oauth-callback", OAuthCallback {
+                        code: code.clone(),
+                        state: state.clone(),
+                    });
+
+                    // Send success response to browser
+                    let response = tiny_http::Response::from_string(
+                        r#"<!DOCTYPE html>
 <html>
 <head><title>Authentication Successful</title></head>
 <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-    <h1>Authentication Successful!</h1>
-    <p>You can close this window and return to the application.</p>
+    <h1 style="color: #22c55e;">&#10003; Authentication Successful!</h1>
+    <p>You can close this window and return to Paper Manager.</p>
     <script>setTimeout(() => window.close(), 2000);</script>
 </body>
 </html>"#,
-                )
-                .with_header(
-                    tiny_http::Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
-                );
-                let _ = request.respond(response);
+                    )
+                    .with_header(
+                        tiny_http::Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
+                    );
+                    let _ = request.respond(response);
+                } else {
+                    // Send error response
+                    let response = tiny_http::Response::from_string(
+                        r#"<!DOCTYPE html>
+<html>
+<head><title>Authentication Failed</title></head>
+<body style="font-family: sans-serif; text-align: center; padding: 50px;">
+    <h1 style="color: #ef4444;">Authentication Failed</h1>
+    <p>Missing authorization code or state. Please try again.</p>
+</body>
+</html>"#,
+                    )
+                    .with_header(
+                        tiny_http::Header::from_bytes(&b"Content-Type"[..], &b"text/html"[..]).unwrap(),
+                    );
+                    let _ = request.respond(response);
+                }
             }
         }
     });

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Noto_Sans_KR, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import { SettingsProvider } from "@/components/providers/SettingsProvider";
 
-const notoSans = Noto_Sans_KR({ 
+const notoSans = Noto_Sans_KR({
   subsets: ["latin"],
   weight: ['400', '500', '700'],
   variable: '--font-noto',
@@ -26,7 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full" suppressHydrationWarning>
-      <body className={`${notoSans.variable} ${ibmPlex.variable} font-sans h-full overflow-hidden bg-[#faf9f5]`}>{children}</body>
+      <body className={`${notoSans.variable} ${ibmPlex.variable} font-sans h-full overflow-hidden bg-[#faf9f5]`}>
+        <SettingsProvider>{children}</SettingsProvider>
+      </body>
     </html>
   );
 }

@@ -5,7 +5,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { TopBar } from '@/components/layout/TopBar';
 import { TopicsTree } from '@/components/sidebars/TopicsTree';
 import { PaperList } from '@/components/sidebars/PaperList';
-import { PDFViewer } from '@/components/main/PDFViewer';
+import { TabPDFViewer } from '@/components/main/TabPDFViewer';
 import { MetadataPanel } from '@/components/sidebars/MetadataPanel';
 import { usePapers, useAllPapers, type Paper } from '@/hooks/usePapers';
 import { importPdf, isTauri } from '@/lib/tauri/commands';
@@ -187,7 +187,7 @@ export default function DashboardPage() {
             className="border-r border-stone-200/70"
           >
             <div className="h-full w-full flex flex-col bg-stone-100/50 min-w-0 overflow-hidden">
-              <PDFViewer pdfUrl={selectedPaper?.pdfPath} />
+              <TabPDFViewer selectedPaper={selectedPaper} />
             </div>
           </ResizablePanel>
 

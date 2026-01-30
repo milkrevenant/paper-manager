@@ -46,6 +46,10 @@
 }
 
 :root {
+  /* App Font Settings (overridden by useSettings hook) */
+  --app-font-family: var(--font-sans);
+  --app-font-size: 14px;
+
   /* Anthropic Warm Beige & Material Expressive Palette (HSL) */
   --background: 40 20% 97%;      /* #faf9f5 */
   --foreground: 20 10% 10%;      /* #1c1c1e */
@@ -115,6 +119,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--app-font-family);
+    font-size: var(--app-font-size);
   }
 }
 

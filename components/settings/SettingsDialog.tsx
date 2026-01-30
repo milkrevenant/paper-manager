@@ -51,6 +51,30 @@ const toSnakeCase = (str: string): string => {
   return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 };
 
+// Font family CSS mapping
+const fontFamilyCssMap: Record<string, string> = {
+  'system': 'var(--font-sans)',
+  'noto-sans-kr': '"Noto Sans KR", sans-serif',
+  'pretendard': '"Pretendard", sans-serif',
+  'ibm-plex-sans-kr': '"IBM Plex Sans KR", sans-serif',
+  'spoqa-han-sans': '"Spoqa Han Sans Neo", sans-serif',
+};
+
+// Apply font settings to document immediately
+const applyFontSettings = (fontFamily: string | null, fontSize: string | null) => {
+  if (typeof document === 'undefined') return;
+  const root = document.documentElement;
+
+  if (fontFamily) {
+    const fontValue = fontFamilyCssMap[fontFamily] || fontFamilyCssMap['system'];
+    root.style.setProperty('--app-font-family', fontValue);
+  }
+
+  if (fontSize) {
+    root.style.setProperty('--app-font-size', `${fontSize}px`);
+  }
+};
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [settings, setSettings] = useState<AppSettings>({
     geminiApiKey: null,
@@ -92,6 +116,13 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
       const dbKey = toSnakeCase(key);
       await setSetting(dbKey, value);
       setSettings(prev => ({ ...prev, [key]: value || null }));
+
+      // Apply font settings immediately
+      if (key === 'defaultFontFamily') {
+        applyFontSettings(value, null);
+      } else if (key === 'defaultFontSize') {
+        applyFontSettings(null, value);
+      }
     } catch (error) {
       console.error(`Failed to save ${key}:`, error);
     } finally {

@@ -5,6 +5,7 @@ use crate::db::{settings, DbConnection};
 use crate::error::AppError;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub gemini_api_key: Option<String>,
     pub openai_api_key: Option<String>,

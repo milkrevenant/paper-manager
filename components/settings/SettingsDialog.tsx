@@ -46,6 +46,11 @@ const fontSizes = [
   { value: '18', label: '18px' },
 ];
 
+// Convert camelCase to snake_case for database keys
+const toSnakeCase = (str: string): string => {
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+};
+
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [settings, setSettings] = useState<AppSettings>({
     geminiApiKey: null,
@@ -83,7 +88,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
     setSaving(key);
     try {
-      await setSetting(key, value);
+      // Convert camelCase key to snake_case for database
+      const dbKey = toSnakeCase(key);
+      await setSetting(dbKey, value);
       setSettings(prev => ({ ...prev, [key]: value || null }));
     } catch (error) {
       console.error(`Failed to save ${key}:`, error);

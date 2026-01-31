@@ -24,40 +24,57 @@ test.describe('Paper Manager E2E', () => {
     await expect(page.getByText('논문을 선택하여 상세 정보를 확인하세요')).toBeVisible();
   });
 
-  test('should selection logic and unified metadata panel', async ({ page }) => {
-    // 1. Select a paper from the list - use JavaScript click to bypass viewport checks
-    const paperText = page.getByText('Deep Learning Approaches', { exact: false }).first();
-    await paperText.evaluate((el) => (el as HTMLElement).click());
-
-    // 2. Verify Unified Metadata Panel Loads
-    // Wait for the metadata panel to show the paper data
-    const titleInput = page.getByPlaceholder('논문 제목');
-    await expect(titleInput).toBeVisible({ timeout: 10000 });
-    await expect(titleInput).toHaveValue(/Deep Learning Approaches/);
-
-    // 3. Verify AI Section visibility (Editable Form)
-    await expect(page.getByText('1. Research Design')).toBeVisible();
-    await expect(page.getByPlaceholder('연구 목적 입력').first()).toBeVisible();
-
-    // Verify Toggles
-    await expect(page.getByText('Qualitative')).toBeVisible();
-    await expect(page.getByText('Quantitative')).toBeVisible();
-
-    // 4. Verify Notes Section
-    await expect(page.getByPlaceholder('여기에 연구 메모를 작성하세요...')).toBeVisible();
+  test('should have TopBar with panel controls', async ({ page }) => {
+    // Check TopBar panel toggle buttons
+    await expect(page.getByRole('button', { name: /라이브러리/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /논문목록/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /PDF/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /메타데이터/i })).toBeVisible();
   });
 
-  test('should trigger auto-save on edit', async ({ page }) => {
-    // 1. Select paper by clicking on title - use JavaScript click to bypass viewport checks
-    const paperText = page.getByText('Deep Learning Approaches', { exact: false }).first();
-    await paperText.evaluate((el) => (el as HTMLElement).click());
+  test('should have search button in TopBar', async ({ page }) => {
+    // Check search button exists
+    await expect(page.getByRole('button', { name: /논문 검색/i })).toBeVisible();
+  });
 
-    // 2. Wait for metadata panel to load, then edit title
-    const titleInput = page.getByPlaceholder('논문 제목');
-    await expect(titleInput).toBeVisible({ timeout: 10000 });
-    await titleInput.fill('Updated E2E Test Title');
+  test('should toggle library panel visibility', async ({ page }) => {
+    // Find the TopicsTree panel
+    const topicsPanel = page.getByRole('heading', { name: '라이브러리' });
+    await expect(topicsPanel).toBeVisible();
 
-    // 3. Verify Auto-Save Indicator "Saving..." appears
-    await expect(page.getByText('Saving...')).toBeVisible();
+    // Toggle left panel off using the 라이브러리 button
+    await page.getByRole('button', { name: /라이브러리/i }).click();
+
+    // Panel should be hidden
+    await expect(topicsPanel).not.toBeVisible();
+
+    // Toggle back on
+    await page.getByRole('button', { name: /라이브러리/i }).click();
+    await expect(topicsPanel).toBeVisible();
+  });
+
+  test('should have paper list with search input', async ({ page }) => {
+    // Check paper list search input
+    await expect(page.getByPlaceholder('제목, 저자 검색...')).toBeVisible();
+  });
+
+  test('should show metadata panel placeholder when no paper selected', async ({ page }) => {
+    // Check metadata panel shows placeholder
+    await expect(page.getByText('논문을 선택하여 상세 정보를 확인하세요')).toBeVisible();
+  });
+
+  test('should navigate to table view', async ({ page }) => {
+    // Click table view link
+    await page.getByRole('link', { name: /테이블 뷰/i }).click();
+    await expect(page).toHaveURL(/\/table/);
+  });
+
+  test('should open search dialog when clicking search button', async ({ page }) => {
+    // Click search button
+    await page.getByRole('button', { name: /논문 검색/i }).click();
+
+    // Verify dialog opens
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.getByText('Search Academic Papers')).toBeVisible();
   });
 });

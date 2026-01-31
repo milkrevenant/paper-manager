@@ -6,10 +6,13 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 use tauri::{Emitter, State};
 
-// Google OAuth configuration
-// NOTE: These should be replaced with your actual Google Cloud Console credentials
-const GOOGLE_CLIENT_ID: &str = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
-const GOOGLE_CLIENT_SECRET: &str = "YOUR_GOOGLE_CLIENT_SECRET";
+// Google OAuth configuration - loaded from environment variables at build time
+// Set these in your shell before building:
+//   export GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+//   export GOOGLE_CLIENT_SECRET="your-client-secret"
+// Or create a .env file in src-tauri/ (it will be gitignored)
+const GOOGLE_CLIENT_ID: &str = env!("GOOGLE_CLIENT_ID");
+const GOOGLE_CLIENT_SECRET: &str = env!("GOOGLE_CLIENT_SECRET");
 const REDIRECT_URI: &str = "http://localhost:8847/oauth/callback";
 const AUTH_URL: &str = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN_URL: &str = "https://oauth2.googleapis.com/token";

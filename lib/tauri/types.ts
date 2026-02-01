@@ -186,8 +186,17 @@ export interface SearchResult {
   externalIds: ExternalIds | null;
 }
 
+export type SearchSource =
+  | 'semantic_scholar'
+  | 'pubmed'
+  | 'crossref'
+  | 'arxiv'
+  | 'kci'
+  | 'google_scholar';
+
 export interface SearchQuery {
   query: string;
+  source?: SearchSource;
   limit?: number;
   offset?: number;
   year?: string;

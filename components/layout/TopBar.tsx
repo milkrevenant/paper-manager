@@ -237,7 +237,21 @@ export function TopBar({ panelVisibility, onTogglePanel, onSearchClick, onFullTe
     <>
       {/* Main TopBar */}
       <div className="h-10 bg-white border-b border-stone-200 flex items-center px-3 gap-1 shrink-0">
-        {/* Panel Toggle Buttons (Left) */}
+        {/* Search Button (Leftmost) */}
+        <Link href="/search">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1.5 text-xs text-[#d97757] hover:text-[#c46647] hover:bg-[#d97757]/10"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">논문 검색</span>
+          </Button>
+        </Link>
+
+        <Separator orientation="vertical" className="h-5 mx-1" />
+
+        {/* Panel Toggle Buttons */}
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -278,18 +292,6 @@ export function TopBar({ panelVisibility, onTogglePanel, onSearchClick, onFullTe
         </div>
 
         <Separator orientation="vertical" className="h-5 mx-1" />
-
-        {/* Search Button */}
-        <Link href="/search">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 px-2 gap-1.5 text-xs text-[#d97757] hover:text-[#c46647] hover:bg-[#d97757]/10"
-          >
-            <Search className="w-4 h-4" />
-            <span className="hidden sm:inline">논문 검색</span>
-          </Button>
-        </Link>
 
         {/* Full-Text Search Button */}
         {onFullTextSearchClick && (

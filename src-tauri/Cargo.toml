@@ -45,3 +45,9 @@ pdf-extract = "0.7"
 
 # File system watching for automation
 notify = "6"
+
+# XML parsing for arXiv and KCI APIs
+quick-xml = { version = "0.36", features = ["serialize"] }
+
+# HTML parsing for Google Scholar scraping
+scraper = "0.20"

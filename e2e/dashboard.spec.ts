@@ -76,12 +76,12 @@ test.describe('Paper Manager E2E', () => {
     await expect(page).toHaveURL(/\/table/);
   });
 
-  test('should open search dialog when clicking search button', async ({ page }) => {
-    // Click search button
-    await page.getByRole('button', { name: /논문 검색/i }).click();
+  test('should navigate to search page when clicking search button', async ({ page }) => {
+    // Click search button (it's a link now)
+    await page.getByRole('link', { name: /논문 검색/i }).click();
 
-    // Verify dialog opens
-    await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByText('Search Academic Papers')).toBeVisible();
+    // Verify navigation to search page
+    await page.waitForURL(/\/search/);
+    await expect(page.getByText('Academic Paper Search')).toBeVisible();
   });
 });

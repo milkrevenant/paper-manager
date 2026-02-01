@@ -435,6 +435,7 @@ export default function DashboardPage() {
       {/* Batch Actions Bar */}
       <BatchActionsBar
         selectedCount={selectedPaperIds.length}
+        selectedPaperIds={selectedPaperIds}
         folders={folders}
         allTags={allTags}
         onClearSelection={handleClearSelection}

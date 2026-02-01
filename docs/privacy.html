@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>개인정보처리방침 - Paper Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0 3rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #d97757, #c46647);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    /* Content Card */
+    .content-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 3rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .last-updated {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      color: #d97757;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-box {
+      background: rgba(217, 119, 87, 0.1);
+      border: 1px solid rgba(217, 119, 87, 0.3);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .highlight-box strong {
+      color: #d97757;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    th {
+      color: #d97757;
+      font-weight: 600;
+    }
+
+    td {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    footer a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: #d97757;
+    }
+
+    @media (max-width: 768px) {
+      .content-card {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <a href="index.html" class="logo">
+        <div class="logo-icon">📄</div>
+        <span>Paper Manager</span>
+      </a>
+    </header>
+
+    <!-- Content -->
+    <main class="content-card">
+      <h1>개인정보처리방침</h1>
+      <p class="last-updated">최종 수정일: 2024년 1월</p>
+
+      <div class="highlight-box">
+        <p><strong>요약:</strong> Paper Manager는 로컬 데스크톱 애플리케이션으로, 사용자의 개인정보를 수집하거나 외부 서버에 전송하지 않습니다. 모든 데이터는 사용자의 컴퓨터에만 저장됩니다.</p>
+      </div>
+
+      <h2>1. 개요</h2>
+      <p>Paper Manager(이하 "앱")는 학술 논문 관리를 위한 데스크톱 애플리케이션입니다. 본 개인정보처리방침은 앱의 데이터 처리 방식과 선택적 기능(Google Drive 연동, AI 분석)에 대해 설명합니다.</p>
+
+      <h2>2. 수집하는 정보</h2>
+
+      <h3>2.1 로컬 저장 데이터 (수집 안 함)</h3>
+      <p>다음 데이터는 <strong>사용자의 컴퓨터에만 저장</strong>되며, 개발자나 제3자에게 전송되지 않습니다:</p>
+      <ul>
+        <li>논문 PDF 파일 및 메타데이터 (제목, 저자, 출판정보 등)</li>
+        <li>하이라이트, 주석, 메모</li>
+        <li>폴더 구조 및 태그</li>
+        <li>앱 설정 및 환경설정</li>
+      </ul>
+
+      <h3>2.2 Google Drive 연동 (선택적)</h3>
+      <p>Google Drive 동기화 기능을 활성화하면:</p>
+      <table>
+        <tr>
+          <th>접근 권한</th>
+          <th>용도</th>
+        </tr>
+        <tr>
+          <td>Google Drive 읽기</td>
+          <td>선택한 폴더의 PDF 파일 목록 조회 및 다운로드</td>
+        </tr>
+        <tr>
+          <td>기본 프로필 정보</td>
+          <td>연결된 계정 확인 (이메일 주소 표시용)</td>
+        </tr>
+      </table>
+      <p><strong>참고:</strong> Google 계정 인증 토큰은 사용자의 로컬 컴퓨터에만 저장되며, 당사 서버로 전송되지 않습니다.</p>
+
+      <h3>2.3 AI 분석 기능 (선택적)</h3>
+      <p>AI 논문 분석 기능을 사용하면:</p>
+      <ul>
+        <li>논문 텍스트가 Google Gemini API로 전송되어 분석됩니다</li>
+        <li>API 키는 사용자가 직접 입력하며, 로컬에만 저장됩니다</li>
+        <li>전송된 데이터는 Google의 <a href="https://policies.google.com/privacy" target="_blank" style="color: #d97757;">개인정보처리방침</a>에 따라 처리됩니다</li>
+      </ul>
+
+      <h2>3. 데이터 저장 위치</h2>
+      <p>모든 앱 데이터는 다음 위치에 로컬 저장됩니다:</p>
+      <ul>
+        <li><strong>macOS:</strong> ~/Library/Application Support/com.papermanager.desktop/</li>
+        <li><strong>Windows:</strong> %APPDATA%\com.papermanager.desktop\</li>
+      </ul>
+
+      <h2>4. 데이터 공유</h2>
+      <p>Paper Manager는 사용자 데이터를 제3자와 공유하지 않습니다. 단, 다음의 경우 외부 서비스와 통신합니다:</p>
+      <ul>
+        <li><strong>Google Drive API:</strong> 동기화 기능 활성화 시</li>
+        <li><strong>Google Gemini API:</strong> AI 분석 기능 사용 시</li>
+        <li><strong>Semantic Scholar API:</strong> 논문 검색 기능 사용 시 (검색어만 전송)</li>
+      </ul>
+
+      <h2>5. 사용자 권리</h2>
+      <p>사용자는 언제든지:</p>
+      <ul>
+        <li>앱 데이터 폴더를 삭제하여 모든 데이터를 제거할 수 있습니다</li>
+        <li>Google 계정 연결을 해제할 수 있습니다</li>
+        <li>AI 분석 기능을 비활성화할 수 있습니다</li>
+      </ul>
+
+      <h2>6. 보안</h2>
+      <p>앱은 다음과 같은 보안 조치를 적용합니다:</p>
+      <ul>
+        <li>OAuth 2.0을 통한 안전한 Google 인증</li>
+        <li>API 키의 로컬 암호화 저장</li>
+        <li>HTTPS를 통한 모든 외부 통신</li>
+      </ul>
+
+      <h2>7. 어린이 개인정보</h2>
+      <p>Paper Manager는 13세 미만 어린이를 대상으로 하지 않으며, 의도적으로 어린이의 개인정보를 수집하지 않습니다.</p>
+
+      <h2>8. 변경사항</h2>
+      <p>본 개인정보처리방침은 필요에 따라 업데이트될 수 있습니다. 중요한 변경사항이 있을 경우 앱 내 공지 또는 GitHub 저장소를 통해 알려드립니다.</p>
+
+      <h2>9. 문의</h2>
+      <p>개인정보처리방침에 대한 문의사항이 있으시면 GitHub 저장소의 Issues를 통해 연락해 주세요:</p>
+      <p><a href="https://github.com/milkrevenant/paper-manager/issues" target="_blank" style="color: #d97757;">github.com/milkrevenant/paper-manager/issues</a></p>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <a href="index.html">&larr; 홈으로 돌아가기</a>
+    </footer>
+  </div>
+</body>
+</html>

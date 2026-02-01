@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Paper Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0 3rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #d97757, #c46647);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .content-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 3rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .last-updated {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      color: #d97757;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-box {
+      background: rgba(217, 119, 87, 0.1);
+      border: 1px solid rgba(217, 119, 87, 0.3);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-box p {
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .highlight-box strong {
+      color: #d97757;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    th {
+      color: #d97757;
+      font-weight: 600;
+    }
+
+    td {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    footer {
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    footer a {
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover {
+      color: #d97757;
+    }
+
+    .lang-switch {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+    }
+
+    .lang-switch a {
+      color: #d97757;
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .content-card {
+        padding: 1.5rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">
+        <div class="logo-icon">📄</div>
+        <span>Paper Manager</span>
+      </a>
+      <span class="lang-switch"><a href="privacy.html">한국어</a> | English</span>
+    </header>
+
+    <main class="content-card">
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last updated: January 2024</p>
+
+      <div class="highlight-box">
+        <p><strong>Summary:</strong> Paper Manager is a local desktop application that does not collect or transmit personal information to external servers. All data is stored only on your computer.</p>
+      </div>
+
+      <h2>1. Overview</h2>
+      <p>Paper Manager ("the App") is a desktop application for managing academic papers. This Privacy Policy explains how the App handles data and describes optional features (Google Drive integration, AI analysis).</p>
+
+      <h2>2. Information We Collect</h2>
+
+      <h3>2.1 Locally Stored Data (Not Collected)</h3>
+      <p>The following data is stored <strong>only on your computer</strong> and is never transmitted to developers or third parties:</p>
+      <ul>
+        <li>Paper PDF files and metadata (title, authors, publication info, etc.)</li>
+        <li>Highlights, annotations, and notes</li>
+        <li>Folder structure and tags</li>
+        <li>App settings and preferences</li>
+      </ul>
+
+      <h3>2.2 Google Drive Integration (Optional)</h3>
+      <p>When you enable Google Drive sync:</p>
+      <table>
+        <tr>
+          <th>Permission</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>Google Drive (read-only)</td>
+          <td>List and download PDF files from selected folders</td>
+        </tr>
+        <tr>
+          <td>Basic profile information</td>
+          <td>Display connected account (email address)</td>
+        </tr>
+      </table>
+      <p><strong>Note:</strong> Google account authentication tokens are stored only on your local computer and are never transmitted to our servers.</p>
+
+      <h3>2.3 AI Analysis Feature (Optional)</h3>
+      <p>When you use the AI paper analysis feature:</p>
+      <ul>
+        <li>Paper text is sent to Google Gemini API for analysis</li>
+        <li>You provide your own API key, which is stored locally</li>
+        <li>Transmitted data is processed according to Google's <a href="https://policies.google.com/privacy" target="_blank" style="color: #d97757;">Privacy Policy</a></li>
+      </ul>
+
+      <h2>3. Data Storage Location</h2>
+      <p>All app data is stored locally at:</p>
+      <ul>
+        <li><strong>macOS:</strong> ~/Library/Application Support/com.papermanager.desktop/</li>
+        <li><strong>Windows:</strong> %APPDATA%\com.papermanager.desktop\</li>
+      </ul>
+
+      <h2>4. Data Sharing</h2>
+      <p>Paper Manager does not share user data with third parties. However, the App communicates with external services in the following cases:</p>
+      <ul>
+        <li><strong>Google Drive API:</strong> When sync feature is enabled</li>
+        <li><strong>Google Gemini API:</strong> When AI analysis feature is used</li>
+        <li><strong>Semantic Scholar API:</strong> When paper search feature is used (only search queries are transmitted)</li>
+      </ul>
+
+      <h2>5. Your Rights</h2>
+      <p>You can at any time:</p>
+      <ul>
+        <li>Delete all data by removing the app data folder</li>
+        <li>Disconnect your Google account</li>
+        <li>Disable AI analysis features</li>
+      </ul>
+
+      <h2>6. Security</h2>
+      <p>The App implements the following security measures:</p>
+      <ul>
+        <li>Secure Google authentication via OAuth 2.0</li>
+        <li>Local encrypted storage of API keys</li>
+        <li>HTTPS for all external communications</li>
+      </ul>
+
+      <h2>7. Children's Privacy</h2>
+      <p>Paper Manager is not intended for children under 13 years of age, and we do not knowingly collect personal information from children.</p>
+
+      <h2>8. Changes to This Policy</h2>
+      <p>This Privacy Policy may be updated as needed. Significant changes will be announced through the App or the GitHub repository.</p>
+
+      <h2>9. Contact</h2>
+      <p>For questions about this Privacy Policy, please contact us through GitHub Issues:</p>
+      <p><a href="https://github.com/milkrevenant/paper-manager/issues" target="_blank" style="color: #d97757;">github.com/milkrevenant/paper-manager/issues</a></p>
+    </main>
+
+    <footer>
+      <a href="index.html">&larr; Back to Home</a>
+    </footer>
+  </div>
+</body>
+</html>

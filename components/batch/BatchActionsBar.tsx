@@ -11,6 +11,7 @@ import {
   FileDown,
   CheckSquare,
   Loader2,
+  Quote,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,9 +26,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { Folder } from '@/lib/tauri/types';
+import { CitationDialog } from '@/components/citation/CitationDialog';
 
 interface BatchActionsBarProps {
   selectedCount: number;
+  selectedPaperIds: string[];
   folders: Folder[];
   allTags: string[];
   onClearSelection: () => void;
@@ -42,6 +45,7 @@ interface BatchActionsBarProps {
 
 export function BatchActionsBar({
   selectedCount,
+  selectedPaperIds,
   folders,
   allTags,
   onClearSelection,
@@ -57,6 +61,7 @@ export function BatchActionsBar({
   const [isMoving, setIsMoving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const [citationDialogOpen, setCitationDialogOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm(`${selectedCount}개 논문을 삭제하시겠습니까?`)) return;
@@ -260,6 +265,17 @@ export function BatchActionsBar({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Citation */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCitationDialogOpen(true)}
+          className="text-[#d97757] hover:bg-[#d97757]/20 gap-1.5"
+        >
+          <Quote className="w-4 h-4" />
+          <span className="hidden sm:inline">인용</span>
+        </Button>
+
         {/* Export */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -313,6 +329,13 @@ export function BatchActionsBar({
           <X className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Citation Dialog */}
+      <CitationDialog
+        open={citationDialogOpen}
+        onOpenChange={setCitationDialogOpen}
+        paperIds={selectedPaperIds}
+      />
     </div>
   );
 }

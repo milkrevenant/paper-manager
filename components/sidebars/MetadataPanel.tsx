@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Paper } from '@/lib/tauri/types';
-import { FileText, Sparkles, StickyNote } from 'lucide-react';
+import { FileText, Sparkles, StickyNote, Tag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,14 +11,17 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { DynamicList } from '@/components/ui/dynamic-list';
+import { TagInput } from '@/components/ui/tag-input';
+import { isTauri, analyzePaper, getPaper } from '@/lib/tauri/commands';
 
 interface MetadataPanelProps {
   paper: Paper | null;
   aiEnabled: boolean;
+  allTags?: string[];
   onUpdate?: (data: Partial<Paper>) => void;
 }
 
-export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps) {
+export function MetadataPanel({ paper, aiEnabled, allTags = [], onUpdate }: MetadataPanelProps) {
   const [formData, setFormData] = useState<Partial<Paper>>(paper || {});
   const [isDirty, setIsDirty] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -68,38 +71,32 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
       return;
     }
 
+    if (!isTauri()) {
+      alert('AI 분석은 Tauri 앱에서만 사용 가능합니다.');
+      return;
+    }
+
     setIsAnalyzing(true);
     try {
-      // Mock user ID for now as we don't have auth context yet
-      const userId = 'demo-user';
+      // Call Tauri command for AI analysis
+      await analyzePaper(paper.id);
 
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paperId: paper.id,
-          pdfPath: paper.pdfPath,
-          userId,
-        }),
-      });
+      // Reload paper data from database to get updated fields
+      const updatedPaper = await getPaper(paper.id);
 
-      const data = await response.json();
+      // Update local state with refreshed data
+      setFormData(updatedPaper);
+      setIsDirty(false);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Analysis failed');
+      // Notify parent to refresh
+      if (onUpdate) {
+        onUpdate(updatedPaper);
       }
 
-      // Update local state with analysis results
-      setFormData(prev => ({
-        ...prev,
-        ...data.result,
-        lastAnalyzedAt: new Date(),
-      }));
-      setIsDirty(true);
       alert('AI 분석이 완료되었습니다.');
     } catch (error: any) {
       console.error('Analysis error:', error);
-      alert(`분석 실패: ${error.message}`);
+      alert(`분석 실패: ${error}`);
     } finally {
       setIsAnalyzing(false);
     }
@@ -199,12 +196,57 @@ export function MetadataPanel({ paper, aiEnabled, onUpdate }: MetadataPanelProps
 
              <div className="space-y-2">
               <label className="text-xs font-bold text-stone-500 uppercase tracking-widest font-display">Keywords</label>
-              <Input 
-                value={formData.keywords || ''} 
+              <Input
+                value={formData.keywords || ''}
                 onChange={(e) => handleChange('keywords', e.target.value)}
                 placeholder="콤마(,)로 구분"
                 className="bg-white/50 focus:bg-white"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-stone-500 uppercase tracking-widest font-display flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5" />
+                Tags
+              </label>
+              <TagInput
+                tags={formData.tags || []}
+                onChange={(tags) => handleChange('tags', tags)}
+                allTags={allTags}
+                placeholder="태그 추가..."
+              />
+            </div>
+
+            {/* Read Status & Importance */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-3 border rounded-lg bg-white/50">
+                <span className="text-sm font-medium text-stone-700">읽음</span>
+                <Switch
+                  checked={formData.isRead}
+                  onCheckedChange={(checked) => handleChange('isRead', checked)}
+                />
+              </div>
+              <div className="space-y-1.5 p-3 border rounded-lg bg-white/50">
+                <span className="text-xs font-medium text-stone-500">중요도</span>
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => handleChange('importance', i + 1)}
+                      className="p-0.5 hover:scale-110 transition-transform"
+                    >
+                      <Star
+                        className={`w-4 h-4 ${
+                          i < (formData.importance || 0)
+                            ? 'fill-amber-400 text-amber-400'
+                            : 'text-stone-300 hover:text-amber-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

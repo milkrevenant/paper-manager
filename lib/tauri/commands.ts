@@ -17,6 +17,22 @@ import type {
   SearchResult,
   DriveFile,
   SyncStatus,
+  Highlight,
+  CreateHighlightInput,
+  UpdateHighlightInput,
+  FullTextSearchQuery,
+  FullTextSearchResponse,
+  IndexingStatus,
+  CitationStyle,
+  CitationExport,
+  BatchCitationExport,
+  SmartGroup,
+  SmartGroupCriteria,
+  CreateSmartGroupInput,
+  WatchFolder,
+  CreateWatchFolderInput,
+  RenameConfig,
+  RenameResult,
 } from './types';
 
 // Check if running in Tauri environment
@@ -79,6 +95,15 @@ export const deletePaper = (paperId: string): Promise<void> =>
 
 export const checkDuplicate = (title: string): Promise<boolean> =>
   invoke('check_duplicate', { title });
+
+export const batchUpdatePapers = (
+  paperIds: string[],
+  input: UpdatePaperInput
+): Promise<Paper[]> =>
+  invoke('batch_update_papers', { paperIds, input });
+
+export const batchDeletePapers = (paperIds: string[]): Promise<void> =>
+  invoke('batch_delete_papers', { paperIds });
 
 // PDF
 export const importPdf = (sourcePath: string, paperId: string): Promise<string> =>
@@ -189,3 +214,252 @@ export const getSyncStatus = (): Promise<SyncStatus> =>
 
 export const listDriveFiles = (): Promise<DriveFile[]> =>
   invoke('list_drive_files');
+
+// AI Analysis
+export interface AnalysisResult {
+  keywords?: string;
+  author?: string;
+  year?: string;
+  title?: string;
+  publisher?: string;
+  subject?: string;
+  purposes?: string[];
+  isQualitative?: boolean;
+  isQuantitative?: boolean;
+  qualTools?: string[];
+  varsIndependent?: string[];
+  varsDependent?: string[];
+  varsModerator?: string[];
+  varsMediator?: string[];
+  varsOthers?: string[];
+  quantTechniques?: string[];
+  results?: string[];
+  limitations?: string[];
+  implications?: string[];
+  futurePlans?: string[];
+}
+
+export const analyzePaper = (paperId: string): Promise<AnalysisResult> =>
+  invoke('analyze_paper', { paperId });
+
+export const summarizeText = (text: string): Promise<string> =>
+  invoke('summarize_text', { text });
+
+export const translateText = (text: string, targetLang: string): Promise<string> =>
+  invoke('translate_text', { text, targetLang });
+
+// Highlights
+export const getHighlights = (
+  paperId: string,
+  pageNumber?: number
+): Promise<Highlight[]> =>
+  invoke('get_highlights', { paperId, pageNumber });
+
+export const getHighlight = (highlightId: string): Promise<Highlight> =>
+  invoke('get_highlight', { highlightId });
+
+export const createHighlight = (input: CreateHighlightInput): Promise<Highlight> =>
+  invoke('create_highlight', { input });
+
+export const updateHighlight = (
+  highlightId: string,
+  input: UpdateHighlightInput
+): Promise<Highlight> =>
+  invoke('update_highlight', { highlightId, input });
+
+export const deleteHighlight = (highlightId: string): Promise<void> =>
+  invoke('delete_highlight', { highlightId });
+
+// PDF Full-Text Search
+export const searchFullText = (query: FullTextSearchQuery): Promise<FullTextSearchResponse> =>
+  invoke('search_full_text', { query });
+
+export const indexPaper = (paperId: string): Promise<IndexingStatus> =>
+  invoke('index_paper', { paperId });
+
+export const indexAllPapers = (): Promise<IndexingStatus[]> =>
+  invoke('index_all_papers');
+
+export const getPaperIndexStatus = (paperId: string): Promise<boolean> =>
+  invoke('get_paper_index_status', { paperId });
+
+// Citations
+export const exportBibtex = (paperId: string): Promise<CitationExport> =>
+  invoke('export_bibtex', { paperId });
+
+export const exportBibtexBatch = (paperIds: string[]): Promise<BatchCitationExport> =>
+  invoke('export_bibtex_batch', { paperIds });
+
+export const exportRis = (paperId: string): Promise<CitationExport> =>
+  invoke('export_ris', { paperId });
+
+export const exportRisBatch = (paperIds: string[]): Promise<BatchCitationExport> =>
+  invoke('export_ris_batch', { paperIds });
+
+export const generateCitation = (
+  paperId: string,
+  style: CitationStyle
+): Promise<CitationExport> =>
+  invoke('generate_citation', { paperId, style });
+
+export const generateCitationBatch = (
+  paperIds: string[],
+  style: CitationStyle
+): Promise<BatchCitationExport> =>
+  invoke('generate_citation_batch', { paperIds, style });
+
+export const getCitationStyles = (): Promise<string[]> =>
+  invoke('get_citation_styles');
+
+// ============================================================================
+// Automation - Smart Groups
+// ============================================================================
+
+/**
+ * Get papers matching smart group criteria.
+ * @param criteria - Array of criteria to match papers against
+ * @param matchMode - How to combine criteria: "and" (all must match) or "or" (any must match)
+ */
+export const getSmartGroupPapers = (
+  criteria: SmartGroupCriteria[],
+  matchMode?: string
+): Promise<Paper[]> =>
+  invoke('get_smart_group_papers', { criteria, matchMode });
+
+/**
+ * Get predefined smart groups (built-in groups like "Unread", "Favorites", etc.).
+ */
+export const getPredefinedSmartGroups = (): Promise<SmartGroup[]> =>
+  invoke('get_predefined_smart_groups');
+
+/**
+ * Create a custom smart group.
+ */
+export const createSmartGroup = (input: CreateSmartGroupInput): Promise<SmartGroup> =>
+  invoke('create_smart_group', { input });
+
+/**
+ * Get all custom smart groups.
+ */
+export const getSmartGroups = (): Promise<SmartGroup[]> =>
+  invoke('get_smart_groups');
+
+/**
+ * Delete a custom smart group.
+ */
+export const deleteSmartGroup = (groupId: string): Promise<void> =>
+  invoke('delete_smart_group', { groupId });
+
+// ============================================================================
+// Automation - Watch Folders
+// ============================================================================
+
+/**
+ * Create a new watch folder for auto-import.
+ */
+export const createWatchFolder = (input: CreateWatchFolderInput): Promise<WatchFolder> =>
+  invoke('create_watch_folder', { input });
+
+/**
+ * Get all watch folders.
+ */
+export const getWatchFolders = (): Promise<WatchFolder[]> =>
+  invoke('get_watch_folders');
+
+/**
+ * Delete a watch folder.
+ */
+export const deleteWatchFolder = (watchFolderId: string): Promise<void> =>
+  invoke('delete_watch_folder', { watchFolderId });
+
+/**
+ * Toggle a watch folder's active status.
+ */
+export const toggleWatchFolder = (
+  watchFolderId: string,
+  isActive: boolean
+): Promise<WatchFolder> =>
+  invoke('toggle_watch_folder', { watchFolderId, isActive });
+
+/**
+ * Start watching a folder for new PDFs.
+ * Emits 'watch-folder-event' when new PDFs are detected.
+ */
+export const startWatching = (watchFolderId: string): Promise<void> =>
+  invoke('start_watching', { watchFolderId });
+
+/**
+ * Stop watching a folder.
+ */
+export const stopWatching = (watchFolderId: string): Promise<void> =>
+  invoke('stop_watching', { watchFolderId });
+
+/**
+ * Scan a watch folder for existing PDFs.
+ * Returns array of PDF file paths.
+ */
+export const scanWatchFolder = (watchFolderId: string): Promise<string[]> =>
+  invoke('scan_watch_folder', { watchFolderId });
+
+/**
+ * Import a PDF from a watch folder.
+ * Creates a paper entry and copies the PDF to storage.
+ */
+export const importFromWatchFolder = (
+  watchFolderId: string,
+  filePath: string
+): Promise<Paper> =>
+  invoke('import_from_watch_folder', { watchFolderId, filePath });
+
+// ============================================================================
+// Automation - PDF Auto-Rename
+// ============================================================================
+
+/**
+ * Generate a filename for a paper based on its metadata.
+ * Does not actually rename the file.
+ */
+export const generatePaperFilename = (
+  paperId: string,
+  config?: RenameConfig
+): Promise<string> =>
+  invoke('generate_paper_filename', { paperId, config });
+
+/**
+ * Rename a paper's PDF file based on its metadata.
+ */
+export const renamePaperPdf = (
+  paperId: string,
+  config?: RenameConfig
+): Promise<RenameResult> =>
+  invoke('rename_paper_pdf', { paperId, config });
+
+/**
+ * Batch rename multiple papers' PDFs.
+ */
+export const batchRenamePdfs = (
+  paperIds: string[],
+  config?: RenameConfig
+): Promise<RenameResult[]> =>
+  invoke('batch_rename_pdfs', { paperIds, config });
+
+/**
+ * Get the current rename configuration.
+ */
+export const getRenameConfig = (): Promise<RenameConfig> =>
+  invoke('get_rename_config');
+
+/**
+ * Save the rename configuration.
+ */
+export const saveRenameConfig = (config: RenameConfig): Promise<void> =>
+  invoke('save_rename_config', { config });
+
+/**
+ * Preview what a renamed filename would be without actually renaming.
+ */
+export const previewRename = (
+  paperId: string,
+  config?: RenameConfig
+): Promise<RenameResult> =>
+  invoke('preview_rename', { paperId, config });

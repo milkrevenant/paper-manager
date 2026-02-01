@@ -27,9 +27,9 @@ test.describe('Paper Search Dialog E2E', () => {
     const searchInput = page.getByPlaceholder('Search by title, author, or keywords...');
     await expect(searchInput).toBeVisible();
 
-    // Check filter dropdowns (by placeholder text)
-    await expect(page.getByText('Field of study')).toBeVisible();
-    await expect(page.getByText('Year range')).toBeVisible();
+    // Check filter dropdowns (default values are shown instead of placeholders)
+    await expect(page.getByText('All Fields')).toBeVisible();
+    await expect(page.getByText('All Years')).toBeVisible();
   });
 
   test('should close dialog with close button', async ({ page }) => {

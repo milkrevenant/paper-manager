@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Paper Manager",
   "version": "0.1.0",
-  "identifier": "com.papermanager.app",
+  "identifier": "com.papermanager.desktop",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
@@ -23,12 +23,16 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: asset: http://asset.localhost blob:; connect-src 'self' ipc: http://ipc.localhost https://unpkg.com https://api.semanticscholar.org https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com; frame-src 'self' asset: http://asset.localhost blob:; worker-src 'self' blob: https://unpkg.com",
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["$APPDATA/**/*", "$RESOURCE/**/*"]
+      }
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["dmg", "app"],
+    "targets": "all",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -38,6 +42,11 @@
     ],
     "macOS": {
       "minimumSystemVersion": "10.15"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
     }
   }
 }

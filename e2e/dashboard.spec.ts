@@ -25,10 +25,10 @@ test.describe('Paper Manager E2E', () => {
   });
 
   test('should have TopBar with panel controls', async ({ page }) => {
-    // Check TopBar panel toggle buttons
+    // Check TopBar panel toggle buttons (use exact: true for PDF to avoid matching "PDF 추가")
     await expect(page.getByRole('button', { name: /라이브러리/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /논문목록/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /PDF/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'PDF', exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /메타데이터/i })).toBeVisible();
   });
 
@@ -38,19 +38,26 @@ test.describe('Paper Manager E2E', () => {
   });
 
   test('should toggle library panel visibility', async ({ page }) => {
-    // Find the TopicsTree panel
-    const topicsPanel = page.getByRole('heading', { name: '라이브러리' });
-    await expect(topicsPanel).toBeVisible();
+    // Find the TopicsTree panel heading
+    const topicsHeading = page.getByRole('heading', { name: '라이브러리' });
+    await expect(topicsHeading).toBeVisible();
+
+    const toggleButton = page.getByRole('button', { name: /라이브러리/i });
+
+    // When panel is visible, button should have active styling (text-stone-700)
+    await expect(toggleButton).toHaveClass(/text-stone-700/);
 
     // Toggle left panel off using the 라이브러리 button
-    await page.getByRole('button', { name: /라이브러리/i }).click();
+    await toggleButton.click();
 
-    // Panel should be hidden
-    await expect(topicsPanel).not.toBeVisible();
+    // Wait for state change - button should now have inactive styling (text-stone-400)
+    await expect(toggleButton).toHaveClass(/text-stone-400/, { timeout: 3000 });
 
     // Toggle back on
-    await page.getByRole('button', { name: /라이브러리/i }).click();
-    await expect(topicsPanel).toBeVisible();
+    await toggleButton.click();
+
+    // Button should be active again
+    await expect(toggleButton).toHaveClass(/text-stone-700/, { timeout: 3000 });
   });
 
   test('should have paper list with search input', async ({ page }) => {

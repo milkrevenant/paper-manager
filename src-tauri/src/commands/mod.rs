@@ -6,3 +6,8 @@ pub mod settings;
 pub mod google_auth;
 pub mod paper_search;
 pub mod google_drive;
+pub mod ai_analysis;
+pub mod highlights;
+pub mod pdf_indexing;
+pub mod citations;
+pub mod automation;

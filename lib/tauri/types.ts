@@ -214,3 +214,210 @@ export interface SyncStatus {
   pdfsSynced: number;
   totalPdfs: number;
 }
+
+// Highlight Types
+export interface HighlightRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+export interface Highlight {
+  id: string;
+  paperId: string;
+  pageNumber: number;
+  rects: HighlightRect[];
+  selectedText: string;
+  color: string;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateHighlightInput {
+  paperId: string;
+  pageNumber: number;
+  rects: HighlightRect[];
+  selectedText: string;
+  color?: string;
+  note?: string;
+}
+
+export interface UpdateHighlightInput {
+  color?: string;
+  note?: string;
+}
+
+// Full-Text Search Types
+export interface FullTextSearchResult {
+  paperId: string;
+  paperTitle: string;
+  paperAuthor: string;
+  pageNumber: number;
+  snippet: string;
+  rank: number;
+}
+
+export interface FullTextSearchQuery {
+  query: string;
+  limit?: number;
+  offset?: number;
+  folderId?: string;
+}
+
+export interface FullTextSearchResponse {
+  total: number;
+  results: FullTextSearchResult[];
+}
+
+export interface IndexingStatus {
+  paperId: string;
+  totalPages: number;
+  indexedPages: number;
+  isComplete: boolean;
+  error?: string;
+}
+
+// Citation Types
+export type CitationStyle = 'apa' | 'mla' | 'chicago' | 'harvard';
+
+export interface CitationExport {
+  format: string;
+  content: string;
+  paperId: string;
+}
+
+export interface BatchCitationExport {
+  format: string;
+  content: string;
+  paperCount: number;
+}
+
+// ============================================================================
+// Automation Types - Smart Groups
+// ============================================================================
+
+/**
+ * Criteria types for smart grouping of papers.
+ * Uses discriminated union pattern with 'type' field.
+ */
+export type SmartGroupCriteria =
+  | { type: 'byYear'; value: number }
+  | { type: 'byYearRange'; value: { start: number; end: number } }
+  | { type: 'byAuthor'; value: string }
+  | { type: 'byKeyword'; value: string }
+  | { type: 'byTag'; value: string }
+  | { type: 'byReadStatus'; value: boolean }
+  | { type: 'byImportance'; value: number }
+  | { type: 'byResearchType'; value: { qualitative: boolean; quantitative: boolean } }
+  | { type: 'recentlyAdded'; value: number }
+  | { type: 'recentlyAnalyzed'; value: number }
+  | { type: 'byPublisher'; value: string }
+  | { type: 'bySubject'; value: string }
+  | { type: 'noPdf' }
+  | { type: 'hasPdf' }
+  | { type: 'unread' }
+  | { type: 'favorites' };
+
+/**
+ * A smart group definition that auto-groups papers by criteria.
+ */
+export interface SmartGroup {
+  id: string;
+  name: string;
+  criteria: SmartGroupCriteria[];
+  /** How to combine criteria: "and" or "or" */
+  matchMode: string;
+  icon: string | null;
+  color: string | null;
+  createdAt: string;
+}
+
+/**
+ * Result of a smart group query.
+ */
+export interface SmartGroupResult {
+  group: SmartGroup;
+  papers: Paper[];
+  count: number;
+}
+
+/**
+ * Input for creating a new smart group.
+ */
+export interface CreateSmartGroupInput {
+  name: string;
+  criteria: SmartGroupCriteria[];
+  matchMode?: string;
+  icon?: string;
+  color?: string;
+}
+
+// ============================================================================
+// Automation Types - Watch Folders
+// ============================================================================
+
+/**
+ * Watch folder configuration for auto-import.
+ */
+export interface WatchFolder {
+  id: string;
+  path: string;
+  targetFolderId: string;
+  autoAnalyze: boolean;
+  autoRename: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+/**
+ * Input for creating a watch folder.
+ */
+export interface CreateWatchFolderInput {
+  path: string;
+  targetFolderId: string;
+  autoAnalyze?: boolean;
+  autoRename?: boolean;
+}
+
+/**
+ * Event emitted when a file is detected in a watch folder.
+ */
+export interface WatchFolderEvent {
+  watchFolderId: string;
+  filePath: string;
+  fileName: string;
+  eventType: string;
+}
+
+// ============================================================================
+// Automation Types - PDF Auto-Rename
+// ============================================================================
+
+/**
+ * Configuration for PDF auto-rename.
+ */
+export interface RenameConfig {
+  /** Pattern for renaming: {author}, {year}, {title}, {keywords}, {publisher} */
+  pattern: string;
+  /** Maximum length for title in filename */
+  maxTitleLength: number;
+  /** Character to replace spaces with */
+  spaceReplacement: string;
+  /** Whether to lowercase the filename */
+  lowercase: boolean;
+}
+
+/**
+ * Result of a rename operation.
+ */
+export interface RenameResult {
+  paperId: string;
+  oldPath: string;
+  newPath: string;
+  oldFilename: string;
+  newFilename: string;
+  success: boolean;
+  error: string | null;
+}

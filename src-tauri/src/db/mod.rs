@@ -4,5 +4,7 @@ pub mod topics;
 pub mod folders;
 pub mod papers;
 pub mod settings;
+pub mod highlights;
+pub mod pdf_content;
 
 pub use connection::DbConnection;

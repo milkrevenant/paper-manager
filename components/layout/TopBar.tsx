@@ -20,6 +20,8 @@ import {
   PinOff,
   Table2,
   Search,
+  BookOpenText,
+  CheckSquare,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -44,6 +46,9 @@ interface TopBarProps {
   };
   onTogglePanel: (panel: 'panel1' | 'panel2' | 'panel3' | 'panel4') => void;
   onSearchClick?: () => void;
+  onFullTextSearchClick?: () => void;
+  selectionMode?: boolean;
+  onToggleSelectionMode?: () => void;
 }
 
 const fontSizes = ['10', '11', '12', '14', '16', '18', '20', '24', '28', '32', '36', '48'];
@@ -60,7 +65,7 @@ const colors = [
   '#e6b8af', '#f4cccc', '#fce5cd', '#fff2cc', '#d9ead3', '#d0e0e3', '#c9daf8', '#cfe2f3', '#d9d2e9', '#ead1dc',
 ];
 
-export function TopBar({ panelVisibility, onTogglePanel, onSearchClick }: TopBarProps) {
+export function TopBar({ panelVisibility, onTogglePanel, onSearchClick, onFullTextSearchClick, selectionMode, onToggleSelectionMode }: TopBarProps) {
   const [fontSize, setFontSize] = useState('12');
   const [fontFamily, setFontFamily] = useState('sans-serif');
   const [fontColor, setFontColor] = useState('#000000');
@@ -284,6 +289,32 @@ export function TopBar({ panelVisibility, onTogglePanel, onSearchClick }: TopBar
           >
             <Search className="w-4 h-4" />
             <span className="hidden sm:inline">논문 검색</span>
+          </Button>
+        )}
+
+        {/* Full-Text Search Button */}
+        {onFullTextSearchClick && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onFullTextSearchClick}
+            className="h-7 px-2 gap-1.5 text-xs text-stone-600 hover:text-stone-900"
+          >
+            <BookOpenText className="w-4 h-4" />
+            <span className="hidden sm:inline">전문 검색</span>
+          </Button>
+        )}
+
+        {/* Selection Mode Toggle */}
+        {onToggleSelectionMode && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleSelectionMode}
+            className={`h-7 px-2 gap-1.5 text-xs ${selectionMode ? 'text-[#d97757] bg-[#d97757]/10' : 'text-stone-600 hover:text-stone-900'}`}
+          >
+            <CheckSquare className="w-4 h-4" />
+            <span className="hidden sm:inline">다중 선택</span>
           </Button>
         )}
 

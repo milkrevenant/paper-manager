@@ -6,6 +6,7 @@ mod models;
 use tauri::Manager;
 
 use db::DbConnection;
+use commands::automation::WatchFolderState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -33,6 +34,9 @@ pub fn run() {
             // Store database connection in app state
             app.manage(db);
 
+            // Initialize watch folder state
+            app.manage(WatchFolderState::default());
+
             log::info!("Paper Manager initialized with database at {:?}", db_path);
 
             Ok(())
@@ -58,6 +62,8 @@ pub fn run() {
             commands::papers::update_paper,
             commands::papers::delete_paper,
             commands::papers::check_duplicate,
+            commands::papers::batch_update_papers,
+            commands::papers::batch_delete_papers,
             // PDF
             commands::pdf::import_pdf,
             commands::pdf::get_pdf_as_base64,
@@ -87,6 +93,51 @@ pub fn run() {
             commands::google_drive::restore_from_drive,
             commands::google_drive::get_sync_status,
             commands::google_drive::list_drive_files,
+            // AI Analysis
+            commands::ai_analysis::analyze_paper,
+            commands::ai_analysis::summarize_text,
+            commands::ai_analysis::translate_text,
+            // Highlights
+            commands::highlights::get_highlights,
+            commands::highlights::get_highlight,
+            commands::highlights::create_highlight,
+            commands::highlights::update_highlight,
+            commands::highlights::delete_highlight,
+            // PDF Indexing & Full-Text Search
+            commands::pdf_indexing::index_paper,
+            commands::pdf_indexing::index_all_papers,
+            commands::pdf_indexing::search_full_text,
+            commands::pdf_indexing::get_paper_index_status,
+            // Citations
+            commands::citations::export_bibtex,
+            commands::citations::export_bibtex_batch,
+            commands::citations::export_ris,
+            commands::citations::export_ris_batch,
+            commands::citations::generate_citation,
+            commands::citations::generate_citation_batch,
+            commands::citations::get_citation_styles,
+            // Automation - Smart Groups
+            commands::automation::get_smart_group_papers,
+            commands::automation::get_predefined_smart_groups,
+            commands::automation::create_smart_group,
+            commands::automation::get_smart_groups,
+            commands::automation::delete_smart_group,
+            // Automation - Watch Folders
+            commands::automation::create_watch_folder,
+            commands::automation::get_watch_folders,
+            commands::automation::delete_watch_folder,
+            commands::automation::toggle_watch_folder,
+            commands::automation::start_watching,
+            commands::automation::stop_watching,
+            commands::automation::scan_watch_folder,
+            commands::automation::import_from_watch_folder,
+            // Automation - PDF Auto-Rename
+            commands::automation::generate_paper_filename,
+            commands::automation::rename_paper_pdf,
+            commands::automation::batch_rename_pdfs,
+            commands::automation::get_rename_config,
+            commands::automation::save_rename_config,
+            commands::automation::preview_rename,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

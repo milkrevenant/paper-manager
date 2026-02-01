@@ -16,7 +16,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["protocol-asset"] }
 tauri-plugin-fs = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell = "2"
@@ -39,3 +39,9 @@ url = "2"
 rand = "0.8"
 urlencoding = "2"
 sha2 = "0.10"
+
+# PDF text extraction
+pdf-extract = "0.7"
+
+# File system watching for automation
+notify = "6"

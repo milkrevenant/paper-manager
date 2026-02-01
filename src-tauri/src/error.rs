@@ -23,6 +23,9 @@ pub enum AppError {
 
     #[error("Parse error: {0}")]
     Parse(String),
+
+    #[error("Analysis error: {0}")]
+    Analysis(String),
 }
 
 impl Serialize for AppError {

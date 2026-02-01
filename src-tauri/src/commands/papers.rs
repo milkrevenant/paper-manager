@@ -63,3 +63,53 @@ pub fn check_duplicate(db: State<'_, DbConnection>, title: String) -> Result<boo
     let conn = db.get()?;
     crate::db::papers::check_duplicate(&conn, &title)
 }
+
+/// Batch update multiple papers with the same changes
+#[tauri::command]
+pub fn batch_update_papers(
+    app: AppHandle,
+    db: State<'_, DbConnection>,
+    paper_ids: Vec<String>,
+    input: UpdatePaperInput,
+) -> Result<Vec<Paper>, AppError> {
+    let conn = db.get()?;
+    let mut updated_papers = Vec::new();
+    let mut affected_folders = std::collections::HashSet::new();
+
+    for paper_id in paper_ids {
+        let paper = crate::db::papers::update_paper(&conn, &paper_id, input.clone())?;
+        affected_folders.insert(paper.folder_id.clone());
+        updated_papers.push(paper);
+    }
+
+    // Emit change events for all affected folders
+    for folder_id in affected_folders {
+        let _ = app.emit("papers-changed", &folder_id);
+    }
+
+    Ok(updated_papers)
+}
+
+/// Batch delete multiple papers
+#[tauri::command]
+pub fn batch_delete_papers(
+    app: AppHandle,
+    db: State<'_, DbConnection>,
+    paper_ids: Vec<String>,
+) -> Result<(), AppError> {
+    let conn = db.get()?;
+    let mut affected_folders = std::collections::HashSet::new();
+
+    for paper_id in &paper_ids {
+        let paper = crate::db::papers::get_paper(&conn, paper_id)?;
+        affected_folders.insert(paper.folder_id.clone());
+        crate::db::papers::delete_paper(&conn, paper_id)?;
+    }
+
+    // Emit change events for all affected folders
+    for folder_id in affected_folders {
+        let _ = app.emit("papers-changed", &folder_id);
+    }
+
+    Ok(())
+}

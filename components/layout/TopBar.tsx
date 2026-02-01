@@ -280,17 +280,16 @@ export function TopBar({ panelVisibility, onTogglePanel, onSearchClick, onFullTe
         <Separator orientation="vertical" className="h-5 mx-1" />
 
         {/* Search Button */}
-        {onSearchClick && (
+        <Link href="/search">
           <Button
             variant="ghost"
             size="sm"
-            onClick={onSearchClick}
             className="h-7 px-2 gap-1.5 text-xs text-[#d97757] hover:text-[#c46647] hover:bg-[#d97757]/10"
           >
             <Search className="w-4 h-4" />
             <span className="hidden sm:inline">논문 검색</span>
           </Button>
-        )}
+        </Link>
 
         {/* Full-Text Search Button */}
         {onFullTextSearchClick && (

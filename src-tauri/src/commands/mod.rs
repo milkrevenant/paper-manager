@@ -11,3 +11,4 @@ pub mod highlights;
 pub mod pdf_indexing;
 pub mod citations;
 pub mod automation;
+pub mod writing;

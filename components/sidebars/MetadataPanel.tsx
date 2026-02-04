@@ -60,7 +60,7 @@ export function MetadataPanel({ paper, aiEnabled, allTags = [], onUpdate }: Meta
     );
   }
 
-  const handleChange = (field: keyof Paper, value: any) => {
+  const handleChange = (field: keyof Paper, value: Paper[keyof Paper]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
@@ -94,9 +94,9 @@ export function MetadataPanel({ paper, aiEnabled, allTags = [], onUpdate }: Meta
       }
 
       alert('AI 분석이 완료되었습니다.');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Analysis error:', error);
-      alert(`분석 실패: ${error}`);
+      alert(`분석 실패: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsAnalyzing(false);
     }

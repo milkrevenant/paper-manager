@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronRight, Folder, FolderPlus, BookOpen, Plus, Settings, Upload, Loader2 } from 'lucide-react';
-import { useState, useEffect, ReactNode, useMemo } from 'react';
+import { useState, ReactNode, useMemo, useSyncExternalStore } from 'react';
 import { cn } from '@/lib/utils';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { isTauri, openPdfDialog } from '@/lib/tauri/commands';
@@ -42,12 +42,13 @@ export function TopicsTree({
 }: TopicsTreeProps) {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(['all']));
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [tauriStatus, setTauriStatus] = useState(false);
 
-  // Check Tauri status after mount to avoid hydration mismatch
-  useEffect(() => {
-    setTauriStatus(isTauri());
-  }, []);
+  // Use useSyncExternalStore to check Tauri status safely (avoids hydration mismatch)
+  const tauriStatus = useSyncExternalStore(
+    () => () => {}, // subscribe (no-op since isTauri doesn't change)
+    () => isTauri(), // client snapshot
+    () => false // server snapshot
+  );
 
   // Fetch real data from DB
   const { topics } = useTopics();

@@ -430,3 +430,156 @@ export interface RenameResult {
   success: boolean;
   error: string | null;
 }
+
+// ============================================================================
+// Writing Types - Scrivener-like Writing Workspace
+// ============================================================================
+
+/**
+ * Writing project status.
+ */
+export type WritingProjectStatus = 'draft' | 'in-progress' | 'completed' | 'archived';
+
+/**
+ * Writing project type - standalone or linked to a paper.
+ */
+export type WritingProjectType = 'standalone' | 'paper-linked';
+
+/**
+ * Writing document status for tracking progress.
+ */
+export type WritingDocumentStatus = 'todo' | 'in-progress' | 'first-draft' | 'revised' | 'done';
+
+/**
+ * Writing document content type.
+ */
+export type WritingDocumentContentType = 'text' | 'folder';
+
+/**
+ * A writing project that can contain multiple documents.
+ */
+export interface WritingProject {
+  id: string;
+  title: string;
+  description: string;
+  type: WritingProjectType;
+  linkedPaperId: string | null;
+  rootDocumentId: string | null;
+  targetWordCount: number | null;
+  status: WritingProjectStatus;
+  metadata: {
+    genre?: string;
+    tags?: string[];
+    exportFormat?: 'pdf' | 'docx' | 'markdown';
+  };
+  createdAt: string;
+  updatedAt: string;
+  lastOpenedAt: string | null;
+}
+
+/**
+ * A document within a writing project (can be nested).
+ */
+export interface WritingDocument {
+  id: string;
+  projectId: string;
+  parentId: string | null;
+  title: string;
+  content: string;  // HTML content
+  contentType: WritingDocumentContentType;
+  sortOrder: number;
+  isExpanded: boolean;
+  synopsis: string;
+  notes: string;
+  status: WritingDocumentStatus;
+  wordCount: number;
+  targetWordCount: number | null;
+  labels: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Input for creating a new writing project.
+ */
+export interface CreateWritingProjectInput {
+  title: string;
+  description?: string;
+  type?: WritingProjectType;
+  linkedPaperId?: string | null;
+  targetWordCount?: number | null;
+}
+
+/**
+ * Input for updating a writing project.
+ */
+export interface UpdateWritingProjectInput {
+  title?: string;
+  description?: string;
+  type?: WritingProjectType;
+  linkedPaperId?: string | null;
+  targetWordCount?: number | null;
+  status?: WritingProjectStatus;
+  metadata?: {
+    genre?: string;
+    tags?: string[];
+    exportFormat?: 'pdf' | 'docx' | 'markdown';
+  };
+}
+
+/**
+ * Input for creating a new writing document.
+ */
+export interface CreateWritingDocumentInput {
+  projectId: string;
+  parentId?: string | null;
+  title: string;
+  contentType?: WritingDocumentContentType;
+  sortOrder?: number;
+}
+
+/**
+ * Input for updating a writing document.
+ */
+export interface UpdateWritingDocumentInput {
+  title?: string;
+  content?: string;
+  contentType?: WritingDocumentContentType;
+  sortOrder?: number;
+  isExpanded?: boolean;
+  synopsis?: string;
+  notes?: string;
+  status?: WritingDocumentStatus;
+  wordCount?: number;
+  targetWordCount?: number | null;
+  labels?: string[];
+}
+
+/**
+ * Input for moving a document within the tree.
+ */
+export interface MoveWritingDocumentInput {
+  parentId: string | null;
+  sortOrder: number;
+}
+
+/**
+ * Export options for PDF export.
+ */
+export interface PdfExportOptions {
+  pageSize?: 'a4' | 'letter';
+  margins?: { top: number; right: number; bottom: number; left: number };
+  fontFamily?: string;
+  fontSize?: number;
+  includeTableOfContents?: boolean;
+  headerTemplate?: string;
+  footerTemplate?: string;
+}
+
+/**
+ * Export options for DOCX export.
+ */
+export interface DocxExportOptions {
+  templatePath?: string;
+  includeTableOfContents?: boolean;
+}

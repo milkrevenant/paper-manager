@@ -179,6 +179,50 @@ pub fn run(conn: &Connection) -> Result<(), AppError> {
 
         CREATE INDEX IF NOT EXISTS idx_watch_folders_path ON watch_folders(path);
         CREATE INDEX IF NOT EXISTS idx_watch_folders_active ON watch_folders(is_active);
+
+        -- Writing projects table for Scrivener-like writing workspace
+        CREATE TABLE IF NOT EXISTS writing_projects (
+            id TEXT PRIMARY KEY,
+            title TEXT NOT NULL DEFAULT '',
+            description TEXT NOT NULL DEFAULT '',
+            type TEXT NOT NULL DEFAULT 'standalone',
+            linked_paper_id TEXT REFERENCES papers(id) ON DELETE SET NULL,
+            root_document_id TEXT,
+            target_word_count INTEGER,
+            status TEXT NOT NULL DEFAULT 'draft',
+            metadata TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            last_opened_at TEXT
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_writing_projects_status ON writing_projects(status);
+        CREATE INDEX IF NOT EXISTS idx_writing_projects_paper ON writing_projects(linked_paper_id);
+        CREATE INDEX IF NOT EXISTS idx_writing_projects_updated ON writing_projects(updated_at DESC);
+
+        -- Writing documents table (sections/chapters within a project)
+        CREATE TABLE IF NOT EXISTS writing_documents (
+            id TEXT PRIMARY KEY,
+            project_id TEXT NOT NULL REFERENCES writing_projects(id) ON DELETE CASCADE,
+            parent_id TEXT REFERENCES writing_documents(id) ON DELETE SET NULL,
+            title TEXT NOT NULL DEFAULT '',
+            content TEXT NOT NULL DEFAULT '',
+            content_type TEXT NOT NULL DEFAULT 'text',
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            is_expanded INTEGER NOT NULL DEFAULT 1,
+            synopsis TEXT NOT NULL DEFAULT '',
+            notes TEXT NOT NULL DEFAULT '',
+            status TEXT NOT NULL DEFAULT 'todo',
+            word_count INTEGER NOT NULL DEFAULT 0,
+            target_word_count INTEGER,
+            labels TEXT NOT NULL DEFAULT '[]',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_writing_docs_project ON writing_documents(project_id);
+        CREATE INDEX IF NOT EXISTS idx_writing_docs_parent ON writing_documents(parent_id);
+        CREATE INDEX IF NOT EXISTS idx_writing_docs_order ON writing_documents(project_id, sort_order);
         "#,
     )?;
 

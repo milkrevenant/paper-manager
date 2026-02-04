@@ -138,6 +138,22 @@ pub fn run() {
             commands::automation::get_rename_config,
             commands::automation::save_rename_config,
             commands::automation::preview_rename,
+            // Writing - Projects
+            commands::writing::get_writing_projects,
+            commands::writing::get_writing_project,
+            commands::writing::create_writing_project,
+            commands::writing::update_writing_project,
+            commands::writing::delete_writing_project,
+            commands::writing::open_writing_project,
+            // Writing - Documents
+            commands::writing::get_writing_documents,
+            commands::writing::get_writing_document,
+            commands::writing::create_writing_document,
+            commands::writing::update_writing_document,
+            commands::writing::delete_writing_document,
+            commands::writing::move_writing_document,
+            // Writing - Export
+            commands::writing::export_project_markdown,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

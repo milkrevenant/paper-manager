@@ -33,6 +33,13 @@ import type {
   CreateWatchFolderInput,
   RenameConfig,
   RenameResult,
+  WritingProject,
+  WritingDocument,
+  CreateWritingProjectInput,
+  UpdateWritingProjectInput,
+  CreateWritingDocumentInput,
+  UpdateWritingDocumentInput,
+  MoveWritingDocumentInput,
 } from './types';
 
 // Check if running in Tauri environment
@@ -463,3 +470,106 @@ export const previewRename = (
   config?: RenameConfig
 ): Promise<RenameResult> =>
   invoke('preview_rename', { paperId, config });
+
+// ============================================================================
+// Writing - Projects
+// ============================================================================
+
+/**
+ * Get all writing projects.
+ */
+export const getWritingProjects = (): Promise<WritingProject[]> =>
+  invoke('get_writing_projects');
+
+/**
+ * Get a single writing project by ID.
+ */
+export const getWritingProject = (projectId: string): Promise<WritingProject> =>
+  invoke('get_writing_project', { projectId });
+
+/**
+ * Create a new writing project.
+ */
+export const createWritingProject = (
+  input: CreateWritingProjectInput
+): Promise<WritingProject> =>
+  invoke('create_writing_project', { input });
+
+/**
+ * Update a writing project.
+ */
+export const updateWritingProject = (
+  projectId: string,
+  input: UpdateWritingProjectInput
+): Promise<WritingProject> =>
+  invoke('update_writing_project', { projectId, input });
+
+/**
+ * Delete a writing project.
+ */
+export const deleteWritingProject = (projectId: string): Promise<void> =>
+  invoke('delete_writing_project', { projectId });
+
+/**
+ * Open a writing project (updates lastOpenedAt).
+ */
+export const openWritingProject = (projectId: string): Promise<WritingProject> =>
+  invoke('open_writing_project', { projectId });
+
+// ============================================================================
+// Writing - Documents
+// ============================================================================
+
+/**
+ * Get all documents in a writing project.
+ */
+export const getWritingDocuments = (projectId: string): Promise<WritingDocument[]> =>
+  invoke('get_writing_documents', { projectId });
+
+/**
+ * Get a single writing document by ID.
+ */
+export const getWritingDocument = (documentId: string): Promise<WritingDocument> =>
+  invoke('get_writing_document', { documentId });
+
+/**
+ * Create a new writing document.
+ */
+export const createWritingDocument = (
+  input: CreateWritingDocumentInput
+): Promise<WritingDocument> =>
+  invoke('create_writing_document', { input });
+
+/**
+ * Update a writing document.
+ */
+export const updateWritingDocument = (
+  documentId: string,
+  input: UpdateWritingDocumentInput
+): Promise<WritingDocument> =>
+  invoke('update_writing_document', { documentId, input });
+
+/**
+ * Delete a writing document.
+ */
+export const deleteWritingDocument = (documentId: string): Promise<void> =>
+  invoke('delete_writing_document', { documentId });
+
+/**
+ * Move a writing document within the tree.
+ */
+export const moveWritingDocument = (
+  documentId: string,
+  input: MoveWritingDocumentInput
+): Promise<WritingDocument> =>
+  invoke('move_writing_document', { documentId, input });
+
+// ============================================================================
+// Writing - Export
+// ============================================================================
+
+/**
+ * Export a writing project as Markdown.
+ */
+export const exportProjectMarkdown = (projectId: string): Promise<string> =>
+  invoke('export_project_markdown', { projectId });

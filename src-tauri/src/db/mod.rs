@@ -6,5 +6,6 @@ pub mod papers;
 pub mod settings;
 pub mod highlights;
 pub mod pdf_content;
+pub mod writing;
 
 pub use connection::DbConnection;

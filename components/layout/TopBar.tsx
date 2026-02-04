@@ -22,6 +22,7 @@ import {
   Search,
   BookOpenText,
   CheckSquare,
+  PenLine,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -326,6 +327,14 @@ export function TopBar({ panelVisibility, onTogglePanel, onSearchClick, onFullTe
           <Button variant="ghost" size="sm" className="h-7 px-2 gap-1.5 text-xs text-stone-600 hover:text-stone-900">
             <Table2 className="w-4 h-4" />
             <span className="hidden sm:inline">테이블 뷰</span>
+          </Button>
+        </Link>
+
+        {/* Writing Link */}
+        <Link href="/writing">
+          <Button variant="ghost" size="sm" className="h-7 px-2 gap-1.5 text-xs text-stone-600 hover:text-stone-900">
+            <PenLine className="w-4 h-4" />
+            <span className="hidden sm:inline">Writing</span>
           </Button>
         </Link>
 

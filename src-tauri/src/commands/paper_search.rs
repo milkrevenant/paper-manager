@@ -569,11 +569,13 @@ struct ArxivEntry {
     link: Option<Vec<ArxivLink>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Default)]
 #[serde(untagged)]
 enum ArxivAuthors {
     Single(ArxivAuthor),
     Multiple(Vec<ArxivAuthor>),
+    #[default]
+    None,
 }
 
 #[derive(Debug, Deserialize)]
@@ -679,7 +681,7 @@ async fn search_arxiv(query: SearchQuery) -> Result<SearchResponse, AppError> {
                 Some(ArxivAuthors::Multiple(authors)) => {
                     authors.into_iter().map(|a| Author { author_id: None, name: a.name }).collect()
                 },
-                None => vec![],
+                Some(ArxivAuthors::None) | None => vec![],
             };
 
             let pdf_url = entry.link

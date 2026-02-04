@@ -10,6 +10,11 @@ import {
 import { Check, LayoutGrid, LayoutList, ArrowUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SearchResult } from '@/lib/tauri/types';
+
+// Extended SearchResult with source info
+export interface SearchResultWithSource extends SearchResult {
+  _source?: string;
+}
 import {
   searchSources,
   type SortField,
@@ -21,9 +26,9 @@ import { SearchResultTable } from './SearchResultTable';
 import { FilterPopover, ActiveFiltersDisplay } from './FilterPopover';
 
 interface ResultsViewProps {
-  results: SearchResult[];
+  results: SearchResultWithSource[];
   total: number;
-  currentSource: (typeof searchSources)[0];
+  selectedSources: string[];
   addedPapers: Set<string>;
   addingPapers: Set<string>;
   viewMode: ViewMode;
@@ -47,7 +52,7 @@ interface ResultsViewProps {
 export function ResultsView({
   results,
   total,
-  currentSource,
+  selectedSources,
   addedPapers,
   addingPapers,
   viewMode,
@@ -67,14 +72,26 @@ export function ResultsView({
   filteredCount,
   totalResultsCount,
 }: ResultsViewProps) {
+  const activeSources = searchSources.filter((s) => selectedSources.includes(s.value));
   return (
     <div className="p-4">
       {/* Results Header with Controls */}
       <div className="flex items-center justify-between mb-4 px-2">
         <div className="flex items-center gap-3">
-          <div className={cn('w-2 h-2 rounded-full', currentSource.color)} />
+          <div className="flex gap-1">
+            {activeSources.map((source) => (
+              <div
+                key={source.value}
+                className={cn('w-2 h-2 rounded-full', source.color)}
+                title={source.label}
+              />
+            ))}
+          </div>
           <span className="text-sm text-stone-600">
             <strong className="text-stone-800">{total.toLocaleString()}</strong>개 논문
+            {activeSources.length > 1 && (
+              <span className="text-stone-400"> · {activeSources.length}개 소스</span>
+            )}
             {filteredCount !== totalResultsCount && (
               <span className="text-stone-400"> · {filteredCount}개 필터됨</span>
             )}
@@ -163,6 +180,7 @@ export function ResultsView({
             <SearchResultCard
               key={paper.paperId}
               paper={paper}
+              source={paper._source}
               isAdded={addedPapers.has(paper.paperId)}
               isAdding={addingPapers.has(paper.paperId)}
               onAddPaper={onAddPaper}

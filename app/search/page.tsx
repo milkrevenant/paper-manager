@@ -5,7 +5,6 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { searchPapers, isTauri, createPaper } from '@/lib/tauri/commands';
 import type { SearchResult, SearchQuery, SearchSource } from '@/lib/tauri/types';
 import {
-  searchSources,
   type SortField,
   type SortDirection,
   type ViewMode,
@@ -21,11 +20,11 @@ import {
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [source, setSource] = useState('semantic_scholar');
+  const [selectedSources, setSelectedSources] = useState<string[]>(['semantic_scholar']);
   const [field, setField] = useState('all');
   const [yearRange, setYearRange] = useState('all');
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [total, setTotal] = useState(0);
+  const [resultsBySource, setResultsBySource] = useState<Record<string, SearchResult[]>>({});
+  const [totalBySource, setTotalBySource] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -41,12 +40,42 @@ export default function SearchPage() {
   const [authorFilter, setAuthorFilter] = useState('');
   const [venueFilter, setVenueFilter] = useState('');
 
-  const currentSource = searchSources.find((s) => s.value === source) || searchSources[0];
+  // Toggle source selection
+  const handleToggleSource = useCallback((source: string) => {
+    setSelectedSources((prev) => {
+      if (prev.includes(source)) {
+        // Don't allow deselecting all sources
+        if (prev.length === 1) return prev;
+        return prev.filter((s) => s !== source);
+      }
+      return [...prev, source];
+    });
+  }, []);
+
+  // Get combined results from all selected sources
+  const results = useMemo(() => {
+    const combined: SearchResult[] = [];
+    selectedSources.forEach((source) => {
+      const sourceResults = resultsBySource[source] || [];
+      sourceResults.forEach((result) => {
+        // Avoid duplicates by checking paperId
+        if (!combined.some((r) => r.paperId === result.paperId)) {
+          combined.push({ ...result, _source: source } as SearchResult & { _source: string });
+        }
+      });
+    });
+    return combined;
+  }, [selectedSources, resultsBySource]);
+
+  // Get combined total
+  const total = useMemo(() => {
+    return selectedSources.reduce((sum, source) => sum + (totalBySource[source] || 0), 0);
+  }, [selectedSources, totalBySource]);
 
   const handleSearch = useCallback(
     async (searchQuery?: string) => {
       const q = searchQuery || query;
-      if (!q.trim() || !isTauri()) return;
+      if (!q.trim() || !isTauri() || selectedSources.length === 0) return;
 
       setQuery(q);
       setLoading(true);
@@ -56,34 +85,55 @@ export default function SearchPage() {
       setVenueFilter('');
 
       try {
-        const searchQueryObj: SearchQuery = {
-          query: q.trim(),
-          source: source as SearchSource,
-          limit: 50,
-          offset: 0,
-        };
+        // Search all selected sources in parallel
+        const searchPromises = selectedSources.map(async (source) => {
+          const searchQueryObj: SearchQuery = {
+            query: q.trim(),
+            source: source as SearchSource,
+            limit: 50,
+            offset: 0,
+          };
 
-        if (yearRange !== 'all') {
-          searchQueryObj.year = yearRange;
-        }
+          if (yearRange !== 'all') {
+            searchQueryObj.year = yearRange;
+          }
 
-        if (field !== 'all') {
-          searchQueryObj.fieldsOfStudy = [field];
-        }
+          if (field !== 'all') {
+            searchQueryObj.fieldsOfStudy = [field];
+          }
 
-        const response = await searchPapers(searchQueryObj);
-        setResults(response.results);
-        setTotal(response.total);
+          try {
+            const response = await searchPapers(searchQueryObj);
+            return { source, results: response.results, total: response.total };
+          } catch (error) {
+            console.error(`Search failed for ${source}:`, error);
+            return { source, results: [], total: 0 };
+          }
+        });
+
+        const responses = await Promise.all(searchPromises);
+
+        // Store results by source
+        const newResultsBySource: Record<string, SearchResult[]> = {};
+        const newTotalBySource: Record<string, number> = {};
+
+        responses.forEach(({ source, results, total }) => {
+          newResultsBySource[source] = results;
+          newTotalBySource[source] = total;
+        });
+
+        setResultsBySource(newResultsBySource);
+        setTotalBySource(newTotalBySource);
       } catch (error) {
         console.error('Search failed:', error);
         setSearchError(error instanceof Error ? error.message : 'Search failed');
-        setResults([]);
-        setTotal(0);
+        setResultsBySource({});
+        setTotalBySource({});
       } finally {
         setLoading(false);
       }
     },
-    [query, source, field, yearRange]
+    [query, selectedSources, field, yearRange]
   );
 
   const handleAddPaper = useCallback(async (paper: SearchResult) => {
@@ -171,19 +221,17 @@ export default function SearchPage() {
     });
   }, []);
 
-  const SourceIcon = currentSource.icon;
-
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-stone-50 flex flex-col">
         <SearchHeader
           query={query}
-          source={source}
+          selectedSources={selectedSources}
           field={field}
           yearRange={yearRange}
           loading={loading}
           onQueryChange={setQuery}
-          onSourceChange={setSource}
+          onToggleSource={handleToggleSource}
           onFieldChange={setField}
           onYearRangeChange={setYearRange}
           onSearch={() => handleSearch()}
@@ -192,22 +240,20 @@ export default function SearchPage() {
         <div className="flex-1 overflow-auto">
           {loading ? (
             <LoadingState
-              sourceLabel={currentSource.label}
-              sourceColor={currentSource.color}
-              SourceIcon={SourceIcon}
+              selectedSources={selectedSources}
               query={query}
             />
           ) : searchError ? (
             <ErrorState error={searchError} onRetry={() => handleSearch()} />
           ) : !searched ? (
-            <EmptyState onQuickSearch={handleSearch} onSourceChange={setSource} />
+            <EmptyState onQuickSearch={handleSearch} onToggleSource={handleToggleSource} />
           ) : results.length === 0 ? (
             <NoResultsState />
           ) : (
             <ResultsView
               results={filteredAndSortedResults}
               total={total}
-              currentSource={currentSource}
+              selectedSources={selectedSources}
               addedPapers={addedPapers}
               addingPapers={addingPapers}
               viewMode={viewMode}

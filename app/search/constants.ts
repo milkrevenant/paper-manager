@@ -35,11 +35,12 @@ export const searchSources: SearchSourceConfig[] = [
     value: 'google_scholar',
     label: 'Google Scholar',
     shortLabel: 'GS',
-    description: 'Comprehensive search',
+    description: 'Rate limited - use sparingly',
     icon: Search,
     color: 'bg-blue-600',
     hoverColor: 'hover:bg-blue-50 hover:border-blue-300',
     activeColor: 'bg-blue-50 border-blue-600 text-blue-700',
+    disabled: true,
   },
   {
     value: 'arxiv',
@@ -52,7 +53,7 @@ export const searchSources: SearchSourceConfig[] = [
     activeColor: 'bg-red-50 border-red-500 text-red-700',
   },
   {
-    value: 'pubmed',
+    value: 'pub_med',
     label: 'PubMed',
     shortLabel: 'PM',
     description: 'Biomedical & life sciences',

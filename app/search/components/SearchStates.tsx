@@ -11,25 +11,38 @@ import { cn } from '@/lib/utils';
 import { searchSources, quickSearches } from '../constants';
 
 interface LoadingStateProps {
-  sourceLabel: string;
-  sourceColor: string;
-  SourceIcon: React.ElementType;
+  selectedSources: string[];
   query: string;
 }
 
 export function LoadingState({
-  sourceLabel,
-  sourceColor,
-  SourceIcon,
+  selectedSources,
   query,
 }: LoadingStateProps) {
+  const activeSources = searchSources.filter((s) => selectedSources.includes(s.value));
+
   return (
     <div className="flex flex-col items-center justify-center h-full py-20">
-      <div className={cn('w-16 h-16 rounded-2xl flex items-center justify-center mb-4', sourceColor)}>
-        <SourceIcon className="w-8 h-8 text-white animate-pulse" />
+      <div className="flex gap-2 mb-4">
+        {activeSources.map((source) => {
+          const Icon = source.icon;
+          return (
+            <div
+              key={source.value}
+              className={cn('w-12 h-12 rounded-xl flex items-center justify-center', source.color)}
+            >
+              <Icon className="w-6 h-6 text-white animate-pulse" />
+            </div>
+          );
+        })}
       </div>
-      <p className="text-stone-600 font-medium">{sourceLabel}에서 검색 중...</p>
-      <p className="text-stone-400 text-sm mt-1">"{query}"</p>
+      <p className="text-stone-600 font-medium">
+        {activeSources.length === 1
+          ? `${activeSources[0].label}에서 검색 중...`
+          : `${activeSources.length}개 소스에서 검색 중...`
+        }
+      </p>
+      <p className="text-stone-400 text-sm mt-1">&quot;{query}&quot;</p>
     </div>
   );
 }
@@ -54,10 +67,10 @@ export function ErrorState({ error, onRetry }: ErrorStateProps) {
 
 interface EmptyStateProps {
   onQuickSearch: (query: string) => void;
-  onSourceChange: (source: string) => void;
+  onToggleSource: (source: string) => void;
 }
 
-export function EmptyState({ onQuickSearch, onSourceChange }: EmptyStateProps) {
+export function EmptyState({ onQuickSearch, onToggleSource }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full py-20">
       <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#d97757]/20 to-[#d97757]/5 flex items-center justify-center mb-6">
@@ -96,7 +109,7 @@ export function EmptyState({ onQuickSearch, onSourceChange }: EmptyStateProps) {
                       'w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 cursor-pointer',
                       s.color
                     )}
-                    onClick={() => onSourceChange(s.value)}
+                    onClick={() => onToggleSource(s.value)}
                   >
                     <Icon className="w-5 h-5" />
                   </div>

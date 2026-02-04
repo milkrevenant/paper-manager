@@ -21,12 +21,12 @@ import { searchSources, fieldsOfStudy, yearRanges } from '../constants';
 
 interface SearchHeaderProps {
   query: string;
-  source: string;
+  selectedSources: string[];
   field: string;
   yearRange: string;
   loading: boolean;
   onQueryChange: (query: string) => void;
-  onSourceChange: (source: string) => void;
+  onToggleSource: (source: string) => void;
   onFieldChange: (field: string) => void;
   onYearRangeChange: (yearRange: string) => void;
   onSearch: () => void;
@@ -34,12 +34,12 @@ interface SearchHeaderProps {
 
 export function SearchHeader({
   query,
-  source,
+  selectedSources,
   field,
   yearRange,
   loading,
   onQueryChange,
-  onSourceChange,
+  onToggleSource,
   onFieldChange,
   onYearRangeChange,
   onSearch,
@@ -109,20 +109,21 @@ export function SearchHeader({
         </div>
       </div>
 
-      {/* Source Tabs */}
+      {/* Source Tabs - Multi-select */}
       <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-1">
+        <span className="text-xs text-stone-400 mr-1">Sources:</span>
         {searchSources
           .filter((s) => !s.disabled)
           .map((s) => {
             const Icon = s.icon;
-            const isActive = source === s.value;
+            const isSelected = selectedSources.includes(s.value);
             return (
               <button
                 key={s.value}
-                onClick={() => onSourceChange(s.value)}
+                onClick={() => onToggleSource(s.value)}
                 className={cn(
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
-                  isActive
+                  isSelected
                     ? s.activeColor
                     : `bg-white border-stone-200 text-stone-600 ${s.hoverColor}`
                 )}

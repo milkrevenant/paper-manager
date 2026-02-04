@@ -19,9 +19,11 @@ import {
 } from '@/components/ui/tooltip';
 import type { SearchResult } from '@/lib/tauri/types';
 import { cn } from '@/lib/utils';
+import { searchSources } from '../constants';
 
 interface SearchResultCardProps {
   paper: SearchResult;
+  source?: string;
   isAdded: boolean;
   isAdding: boolean;
   onAddPaper: (paper: SearchResult) => void;
@@ -63,8 +65,27 @@ function getSourceBadge(paper: SearchResult) {
   return null;
 }
 
+function getSourceIndicator(sourceValue?: string) {
+  if (!sourceValue) return null;
+  const source = searchSources.find((s) => s.value === sourceValue);
+  if (!source) return null;
+  const Icon = source.icon;
+  return (
+    <div
+      className={cn(
+        'w-5 h-5 rounded flex items-center justify-center shrink-0',
+        source.color
+      )}
+      title={source.label}
+    >
+      <Icon className="w-3 h-3 text-white" />
+    </div>
+  );
+}
+
 export function SearchResultCard({
   paper,
+  source,
   isAdded,
   isAdding,
   onAddPaper,
@@ -82,6 +103,9 @@ export function SearchResultCard({
       )}
     >
       <div className="flex gap-4">
+        {/* Source Indicator */}
+        {source && getSourceIndicator(source)}
+
         {/* Main Content */}
         <div className="flex-1 min-w-0">
           {/* Title */}

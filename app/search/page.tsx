@@ -16,6 +16,8 @@ import {
   EmptyState,
   NoResultsState,
   ResultsView,
+  FilterSidebar,
+  FilterToggleButton,
 } from './components';
 
 export default function SearchPage() {
@@ -37,14 +39,26 @@ export default function SearchPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   // Filter state
+  const [filterSidebarOpen, setFilterSidebarOpen] = useState(false);
   const [authorFilter, setAuthorFilter] = useState('');
   const [venueFilter, setVenueFilter] = useState('');
+  const [yearFilter, setYearFilter] = useState('all');
+  const [minCitations, setMinCitations] = useState<number | null>(null);
+
+  // Count active filters
+  const activeFilterCount = useMemo(() => {
+    return (
+      (authorFilter ? 1 : 0) +
+      (venueFilter ? 1 : 0) +
+      (yearFilter !== 'all' ? 1 : 0) +
+      (minCitations ? 1 : 0)
+    );
+  }, [authorFilter, venueFilter, yearFilter, minCitations]);
 
   // Toggle source selection
   const handleToggleSource = useCallback((source: string) => {
     setSelectedSources((prev) => {
       if (prev.includes(source)) {
-        // Don't allow deselecting all sources
         if (prev.length === 1) return prev;
         return prev.filter((s) => s !== source);
       }
@@ -58,7 +72,6 @@ export default function SearchPage() {
     selectedSources.forEach((source) => {
       const sourceResults = resultsBySource[source] || [];
       sourceResults.forEach((result) => {
-        // Avoid duplicates by checking paperId
         if (!combined.some((r) => r.paperId === result.paperId)) {
           combined.push({ ...result, _source: source } as SearchResult & { _source: string });
         }
@@ -81,11 +94,13 @@ export default function SearchPage() {
       setLoading(true);
       setSearched(true);
       setSearchError(null);
+      // Reset filters on new search
       setAuthorFilter('');
       setVenueFilter('');
+      setYearFilter('all');
+      setMinCitations(null);
 
       try {
-        // Search all selected sources in parallel
         const searchPromises = selectedSources.map(async (source) => {
           const searchQueryObj: SearchQuery = {
             query: q.trim(),
@@ -113,13 +128,12 @@ export default function SearchPage() {
 
         const responses = await Promise.all(searchPromises);
 
-        // Store results by source
         const newResultsBySource: Record<string, SearchResult[]> = {};
         const newTotalBySource: Record<string, number> = {};
 
-        responses.forEach(({ source, results, total }) => {
-          newResultsBySource[source] = results;
-          newTotalBySource[source] = total;
+        responses.forEach(({ source, results: r, total: t }) => {
+          newResultsBySource[source] = r;
+          newTotalBySource[source] = t;
         });
 
         setResultsBySource(newResultsBySource);
@@ -195,6 +209,20 @@ export default function SearchPage() {
       );
     }
 
+    if (yearFilter && yearFilter !== 'all') {
+      if (yearFilter.includes('-')) {
+        const [startYear, endYear] = yearFilter.split('-').map(Number);
+        filtered = filtered.filter((paper) => {
+          const year = paper.year;
+          return year && year >= startYear && year <= endYear;
+        });
+      }
+    }
+
+    if (minCitations !== null) {
+      filtered = filtered.filter((paper) => (paper.citationCount || 0) >= minCitations);
+    }
+
     if (sortField !== 'relevance') {
       filtered.sort((a, b) => {
         let comparison = 0;
@@ -208,18 +236,20 @@ export default function SearchPage() {
     }
 
     return filtered;
-  }, [results, authorFilter, venueFilter, sortField, sortDirection]);
+  }, [results, authorFilter, venueFilter, yearFilter, minCitations, sortField, sortDirection]);
 
-  const handleSort = useCallback((field: SortField) => {
+  const handleSort = useCallback((newSortField: SortField) => {
     setSortField((prev) => {
-      if (prev === field) {
+      if (prev === newSortField) {
         setSortDirection((d) => (d === 'asc' ? 'desc' : 'asc'));
         return prev;
       }
       setSortDirection('desc');
-      return field;
+      return newSortField;
     });
   }, []);
+
+  const showResults = searched && results.length > 0;
 
   return (
     <TooltipProvider>
@@ -237,41 +267,66 @@ export default function SearchPage() {
           onSearch={() => handleSearch()}
         />
 
-        <div className="flex-1 overflow-auto">
-          {loading ? (
-            <LoadingState
-              selectedSources={selectedSources}
-              query={query}
-            />
-          ) : searchError ? (
-            <ErrorState error={searchError} onRetry={() => handleSearch()} />
-          ) : !searched ? (
-            <EmptyState onQuickSearch={handleSearch} onToggleSource={handleToggleSource} />
-          ) : results.length === 0 ? (
-            <NoResultsState />
-          ) : (
-            <ResultsView
-              results={filteredAndSortedResults}
-              total={total}
-              selectedSources={selectedSources}
-              addedPapers={addedPapers}
-              addingPapers={addingPapers}
-              viewMode={viewMode}
-              sortField={sortField}
-              sortDirection={sortDirection}
+        <div className="flex-1 flex overflow-hidden">
+          {/* Main Content */}
+          <div className="flex-1 overflow-auto">
+            {loading ? (
+              <LoadingState selectedSources={selectedSources} query={query} />
+            ) : searchError ? (
+              <ErrorState error={searchError} onRetry={() => handleSearch()} />
+            ) : !searched ? (
+              <EmptyState onQuickSearch={handleSearch} onToggleSource={handleToggleSource} />
+            ) : results.length === 0 ? (
+              <NoResultsState />
+            ) : (
+              <ResultsView
+                results={filteredAndSortedResults}
+                total={total}
+                selectedSources={selectedSources}
+                addedPapers={addedPapers}
+                addingPapers={addingPapers}
+                viewMode={viewMode}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                authorFilter={authorFilter}
+                venueFilter={venueFilter}
+                uniqueAuthors={uniqueAuthors}
+                uniqueVenues={uniqueVenues}
+                onAddPaper={handleAddPaper}
+                onSort={handleSort}
+                onViewModeChange={setViewMode}
+                onSortFieldChange={setSortField}
+                onSortDirectionChange={setSortDirection}
+                onAuthorFilterChange={setAuthorFilter}
+                onVenueFilterChange={setVenueFilter}
+                filteredCount={filteredAndSortedResults.length}
+                totalResultsCount={results.length}
+                filterToggle={
+                  <FilterToggleButton
+                    isOpen={filterSidebarOpen}
+                    onClick={() => setFilterSidebarOpen(!filterSidebarOpen)}
+                    activeCount={activeFilterCount}
+                  />
+                }
+              />
+            )}
+          </div>
+
+          {/* Filter Sidebar */}
+          {showResults && (
+            <FilterSidebar
+              isOpen={filterSidebarOpen}
+              onClose={() => setFilterSidebarOpen(false)}
               authorFilter={authorFilter}
               venueFilter={venueFilter}
-              uniqueAuthors={uniqueAuthors}
-              uniqueVenues={uniqueVenues}
-              onAddPaper={handleAddPaper}
-              onSort={handleSort}
-              onViewModeChange={setViewMode}
-              onSortFieldChange={setSortField}
-              onSortDirectionChange={setSortDirection}
+              yearFilter={yearFilter}
+              minCitations={minCitations}
               onAuthorFilterChange={setAuthorFilter}
               onVenueFilterChange={setVenueFilter}
-              filteredCount={filteredAndSortedResults.length}
-              totalResultsCount={results.length}
+              onYearFilterChange={setYearFilter}
+              onMinCitationsChange={setMinCitations}
+              uniqueAuthors={uniqueAuthors}
+              uniqueVenues={uniqueVenues}
             />
           )}
         </div>

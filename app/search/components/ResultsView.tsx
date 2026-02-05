@@ -23,7 +23,7 @@ import {
 } from '../constants';
 import { SearchResultCard } from './SearchResultCard';
 import { SearchResultTable } from './SearchResultTable';
-import { FilterPopover, ActiveFiltersDisplay } from './FilterPopover';
+import { ActiveFiltersDisplay } from './FilterPopover';
 
 interface ResultsViewProps {
   results: SearchResultWithSource[];
@@ -47,6 +47,7 @@ interface ResultsViewProps {
   onVenueFilterChange: (value: string) => void;
   filteredCount: number;
   totalResultsCount: number;
+  filterToggle?: React.ReactNode;
 }
 
 export function ResultsView({
@@ -60,8 +61,6 @@ export function ResultsView({
   sortDirection,
   authorFilter,
   venueFilter,
-  uniqueAuthors,
-  uniqueVenues,
   onAddPaper,
   onSort,
   onViewModeChange,
@@ -71,6 +70,7 @@ export function ResultsView({
   onVenueFilterChange,
   filteredCount,
   totalResultsCount,
+  filterToggle,
 }: ResultsViewProps) {
   const activeSources = searchSources.filter((s) => selectedSources.includes(s.value));
   return (
@@ -106,14 +106,7 @@ export function ResultsView({
 
         {/* View/Sort/Filter Controls */}
         <div className="flex items-center gap-2">
-          <FilterPopover
-            authorFilter={authorFilter}
-            venueFilter={venueFilter}
-            onAuthorFilterChange={onAuthorFilterChange}
-            onVenueFilterChange={onVenueFilterChange}
-            uniqueAuthors={uniqueAuthors}
-            uniqueVenues={uniqueVenues}
-          />
+          {filterToggle}
 
           {/* Sort Dropdown */}
           <Select

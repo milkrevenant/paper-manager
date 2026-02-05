@@ -51,3 +51,4 @@ quick-xml = { version = "0.36", features = ["serialize"] }
 
 # HTML parsing for Google Scholar scraping
 scraper = "0.20"
+regex = "1.12.3"

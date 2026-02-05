@@ -1,8 +1,13 @@
 use crate::error::AppError;
 use crate::models::paper_search::{Author, ExternalIds, OpenAccessPdf, SearchQuery, SearchResponse, SearchResult};
 use serde::Deserialize;
+use std::env;
 
 const API_URL: &str = "https://api.semanticscholar.org/graph/v1";
+
+fn get_api_key() -> Option<String> {
+    env::var("SEMANTIC_SCHOLAR_API_KEY").ok()
+}
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
@@ -84,9 +89,15 @@ pub async fn search(query: SearchQuery) -> Result<SearchResponse, AppError> {
         }
     }
 
-    let response = client
+    let mut request = client
         .get(&url)
-        .header("User-Agent", "PaperManager/1.0")
+        .header("User-Agent", "PaperManager/1.0");
+
+    if let Some(api_key) = get_api_key() {
+        request = request.header("x-api-key", api_key);
+    }
+
+    let response = request
         .send()
         .await
         .map_err(|e| AppError::Network(e.to_string()))?;
@@ -116,9 +127,15 @@ pub async fn get_details(paper_id: String) -> Result<SearchResult, AppError> {
     let fields = "paperId,title,authors,year,abstract,venue,citationCount,url,openAccessPdf,externalIds";
     let url = format!("{}/paper/{}?fields={}", API_URL, paper_id, fields);
 
-    let response = client
+    let mut request = client
         .get(&url)
-        .header("User-Agent", "PaperManager/1.0")
+        .header("User-Agent", "PaperManager/1.0");
+
+    if let Some(api_key) = get_api_key() {
+        request = request.header("x-api-key", api_key);
+    }
+
+    let response = request
         .send()
         .await
         .map_err(|e| AppError::Network(e.to_string()))?;
@@ -147,9 +164,15 @@ pub async fn get_recommendations(paper_id: String, limit: Option<i32>) -> Result
         paper_id, fields, limit
     );
 
-    let response = client
+    let mut request = client
         .get(&url)
-        .header("User-Agent", "PaperManager/1.0")
+        .header("User-Agent", "PaperManager/1.0");
+
+    if let Some(api_key) = get_api_key() {
+        request = request.header("x-api-key", api_key);
+    }
+
+    let response = request
         .send()
         .await
         .map_err(|e| AppError::Network(e.to_string()))?;

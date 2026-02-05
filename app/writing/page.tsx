@@ -349,35 +349,41 @@ export default function WritingPage() {
       <div className="flex-1 min-h-0">
         <ResizablePanelGroup orientation="horizontal">
           {/* Left Panel - Binder */}
-          {isBinderVisible && (
-            <>
-              <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-                <div className="h-full flex flex-col bg-white border-r border-stone-200">
-                  <ProjectList
-                    projects={projects}
-                    selectedProjectId={selectedProjectId}
-                    onSelectProject={setSelectedProject}
-                    onCreateProject={handleCreateProject}
-                    onDeleteProject={handleDeleteProject}
+          <ResizablePanel
+            defaultSize={isBinderVisible ? 20 : 0}
+            minSize={isBinderVisible ? 15 : 0}
+            maxSize={30}
+            collapsible
+            collapsedSize={0}
+            className={isBinderVisible ? 'bg-white border-r border-stone-200' : ''}
+          >
+            {isBinderVisible && (
+              <div className="h-full flex flex-col">
+                <ProjectList
+                  projects={projects}
+                  selectedProjectId={selectedProjectId}
+                  onSelectProject={setSelectedProject}
+                  onCreateProject={handleCreateProject}
+                  onDeleteProject={handleDeleteProject}
+                />
+                {selectedProjectId && (
+                  <DocumentTree
+                    documents={documentTree}
+                    allDocuments={documents}
+                    selectedDocumentId={selectedDocumentId}
+                    onSelectDocument={setSelectedDocument}
+                    onCreateDocument={handleCreateDocument}
+                    onDeleteDocument={handleDeleteDocument}
                   />
-                  {selectedProjectId && (
-                    <DocumentTree
-                      documents={documentTree}
-                      allDocuments={documents}
-                      selectedDocumentId={selectedDocumentId}
-                      onSelectDocument={setSelectedDocument}
-                      onCreateDocument={handleCreateDocument}
-                      onDeleteDocument={handleDeleteDocument}
-                    />
-                  )}
-                </div>
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-            </>
-          )}
+                )}
+              </div>
+            )}
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className={isBinderVisible ? '' : 'hidden'} />
 
           {/* Center Panel - Editor */}
-          <ResizablePanel defaultSize={isBinderVisible && isInspectorVisible ? 55 : 75}>
+          <ResizablePanel defaultSize={55} minSize={30}>
             <div className="h-full flex flex-col">
               {selectedDocument && selectedDocument.contentType === 'text' ? (
                 <>
@@ -408,18 +414,23 @@ export default function WritingPage() {
             </div>
           </ResizablePanel>
 
+          <ResizableHandle withHandle className={isInspectorVisible ? '' : 'hidden'} />
+
           {/* Right Panel - Inspector */}
-          {isInspectorVisible && (
-            <>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
-                <InspectorPanel
-                  document={selectedDocument}
-                  onUpdate={updateWritingDocument}
-                />
-              </ResizablePanel>
-            </>
-          )}
+          <ResizablePanel
+            defaultSize={isInspectorVisible ? 25 : 0}
+            minSize={isInspectorVisible ? 20 : 0}
+            maxSize={35}
+            collapsible
+            collapsedSize={0}
+          >
+            {isInspectorVisible && (
+              <InspectorPanel
+                document={selectedDocument}
+                onUpdate={updateWritingDocument}
+              />
+            )}
+          </ResizablePanel>
         </ResizablePanelGroup>
       </div>
 
